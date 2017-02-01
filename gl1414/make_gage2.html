@@ -1,0 +1,2921 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)http://www.bauer.uh.edu/parks/make_gauge2.htm -->
+<html style=""><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Gauge maker|canvas|HTML 5</title>
+<script language="javascript" src="./make_gage2_files/dom-drag.js.download"></script>
+<script language="javascript" src="./make_gage2_files/AjaxRequest.js.download"></script>
+<style type="text/css">
+a:link {color:#0000ff;}
+a:visited {color:#0000ff;}
+a:active {color:#0000ff;}
+a:hover {color:#0000ff;} 
+td {border:solid blue 1px;}
+td.small {padding:1px;font-family:Comic Sans MS,Arial,Helvetica;font-size:12px;}
+td.big {padding:1px;font-family:Comic Sans MS,Arial,Helvetica;font-size:14px;}
+td {padding:1px;font-family:Comic Sans MS,Arial,Helvetica;font-size:12px;}
+input.etext {font-family:Comic Sans MS,Arial,Helvetica;font-size:12px;}
+input.sld {padding:1px;width:100px;height:12px;}
+input.ticksld {padding:1px;width:40px;height:16px;}
+input.porm {margin:0px;padding:0px;width:18px;height:18px;}
+</style>
+<script language="javascript">
+var gex;
+var g;
+var xc;
+var yc;
+fsw=0;
+var disp_val
+var show_cur;
+var running=false;
+var colv = new Array(3);
+var cab = new Array(4);
+var swangle = new Array(4);
+var tempos;
+var tempos_old;
+loadsw=0;
+function poster(gtype)
+{
+document.gtrackform.gauge_post_type.value=gtype
+
+AjaxRequest.submit(gtrackform,
+  {
+    'url':'http://auckland.bauer.uh.edu/students/parks/gauge_post.asp'
+  ,'onSuccess':function(req){ q_out.innerHTML=req.responseText; }
+,'onError':function(req){ q_out.innerHTML= req.responseText;}
+  }
+);
+
+}
+function go()
+{
+  try {
+       gex = document.getElementById("cur_canvas");
+       g = gex.getContext("2d");
+       }
+  catch (e)
+     {
+      alert ("HTML 5 Canvas is NOT supported by this browser");
+      return;
+     }
+  poster(1); 	 
+  start_make();
+}
+function draw_cur()
+{
+ //
+ // *** loadsw determines whether we save the original code template
+ //
+ if (loadsw==0)
+    {
+     tempos_old=document.m1.ta2.value;
+     loadsw=1;
+    }
+ //
+ // *** set draggable [omit in make]
+ //
+ t1s=document.getElementById("t1span");
+ t2s=document.getElementById("t2span");
+ dp=document.getElementById("disp_span");
+ Drag.init(t1s);
+ Drag.init(t2s);
+ Drag.init(dp);
+ //
+ // *** get canvas size
+ //
+ fname=document.m1.gname.value;
+ rad=parseInt(document.m1.rd.value);
+ rad2=parseInt(document.m1.rd2.value);
+ w=parseInt(document.m1.wsz.value);
+ h=parseInt(document.m1.hsz.value);
+ xc=w/2;
+ yc=h/2;
+ xcout.innerHTML=xc.toString();
+ ycout.innerHTML=yc.toString();
+ basetop=250;
+ baseleft=680;
+ if ( (baseleft+w+80) > 1060)
+      document.getElementById("bigt").style.width=(baseleft+w+80).toString()+"px";
+ else
+       document.getElementById("bigt").style.width=(1060).toString()+"px";
+ if ( (w+80) > 380)
+     document.getElementById("lastcol").style.width=(w+80).toString()+"px";
+ else
+      document.getElementById("lastcol").style.width=(380).toString()+"px";
+//
+// *** place canvas, overlay, test slider
+//
+if( typeof( window.innerHeight ) == 'number' ) {
+  browserHeight = window.innerHeight;
+} else {
+  browserHeight = document.documentElement.clientHeight;
+}
+if ( document.documentElement&&(document.documentElement.scrollTop)) {
+  browserTopY = document.documentElement.scrollTop;
+} else {
+  browserTopY = document.body.scrollTop;
+}
+gauge_bot=basetop+browserTopY+h+65+10; //*** bot of gauge field AND test slider
+tab_ht=document.getElementById("bigt").offsetHeight;
+document.getElementById("ta").style.top =(tab_ht+25).toString()+"px";
+document.getElementById("ta2").style.top=(tab_ht+25).toString()+"px";
+if ( gauge_bot > tab_ht )
+    {
+     cg_top=tab_ht-h-10-70;
+     ts_top=tab_ht-65;
+    }
+else
+    {
+     cg_top=basetop+browserTopY;
+     ts_top=basetop+browserTopY+h+20;
+    }
+document.getElementById("cur_canvas").style.left=parseInt(baseleft+40).toString()+"px";
+document.getElementById("gover").style.left=parseInt(baseleft+40).toString()+"px";
+
+document.getElementById("cur_canvas").style.top  = parseInt(cg_top).toString()+"px";
+document.getElementById("gover").style.top       = parseInt(cg_top).toString()+"px";
+document.getElementById("test_slider").style.top = parseInt(ts_top).toString()+"px";
+
+document.getElementById("test_slider").style.left=parseInt(baseleft+40).toString()+"px";
+document.getElementById("test_slider").style.width=parseInt(w).toString()+"px";
+
+document.getElementById("cur_canvas").style.margin ="0px";
+document.getElementById("gover").style.margin      ="0px";
+document.getElementById("test_slider").style.margin="0px";
+
+
+//
+// *** set canvas size and fill
+//
+gex.width=w;
+gex.height=h;
+document.getElementById("gover").style.width=w.toString()+"px";
+document.getElementById("gover").style.height=h.toString()+"px";
+
+tpp1=document.getElementById("test_slider").style.left;
+tpp1=tpp1.replace("px");
+tpp1=parseInt(tpp1);
+
+tpp2=document.getElementById("gover").style.left;
+tpp2=tpp2.replace("px");
+tpp2=parseInt(tpp2);
+leftdiff=tpp1-tpp2;
+ //
+ // circular gauge face background
+ //
+ backgr1=document.m1.gbcr1.value;
+ backgg1=document.m1.gbcg1.value;
+ backgb1=document.m1.gbcb1.value;
+ document.getElementById("gbcr1o").innerHTML=backgr1.toString();
+ document.getElementById("gbcg1o").innerHTML=backgg1.toString();
+ document.getElementById("gbcb1o").innerHTML=backgb1.toString();
+ document.getElementById("bg1div").style.backgroundColor="rgb("+backgr1+"%,"+backgg1+"%,"+backgb1+"%)";
+//
+ // circular gauge face background2 -- used for radial gradient
+ //
+ backgr2=document.m1.gbcr2.value;
+ backgg2=document.m1.gbcg2.value;
+ backgb2=document.m1.gbcb2.value;
+ document.getElementById("gbcr2o").innerHTML=backgr2.toString();
+ document.getElementById("gbcg2o").innerHTML=backgg2.toString();
+ document.getElementById("gbcb2o").innerHTML=backgb2.toString();
+ document.getElementById("bg2div").style.backgroundColor="rgb("+backgr2+"%,"+backgg2+"%,"+backgb2+"%)";
+//
+// *** numeric scale text
+//
+ rgs=document.m1.gscr.value;
+ ggs=document.m1.gscg.value;
+ bgs=document.m1.gscb.value;
+ document.getElementById("gscro").innerHTML=rgs.toString();
+ document.getElementById("gscgo").innerHTML=ggs.toString();
+ document.getElementById("gscbo").innerHTML=bgs.toString();
+ document.getElementById("gsco").style.backgroundColor="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+//
+// *** fill rectangle with transparent
+//     fill gauge circle with background color
+//
+r1=document.m1.gfcr.value;
+g1=document.m1.gfcg.value;
+b1=document.m1.gfcb.value;
+temp6=r1+" "+g1+" "+b1;
+if (document.m1.gfchk.checked)
+   {
+     g.fillStyle="rgba(0,0,0,0.0)";
+     g.fillRect(0,0,w,h);
+   }
+else
+   {
+    g.fillStyle="rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+    g.fillRect(0,0,w,h);
+   }
+ document.getElementById("gfcro").innerHTML=r1;
+ document.getElementById("gfcgo").innerHTML=g1;
+ document.getElementById("gfcbo").innerHTML=b1;
+ document.getElementById("gfco").style.backgroundColor="rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+//
+// *** fill gauge with solid or radial gradient color
+//
+ if (!document.m1.bgradsw.checked)
+    {
+     g.fillStyle="rgba("+backgr1+"%,"+backgg1+"%,"+backgb1+"%,1.0)";
+     g.arc(xc,yc,rad,0.0,2.0*Math.PI,false);
+     g.fill();
+     }
+else
+    {
+  var grbg = g.createRadialGradient(xc,yc,0.0,xc,yc,rad);
+     grbg.addColorStop(0.0,"rgb("+backgr1+"%,"+backgg1+"%,"+backgb1+"%)");
+     grbg.addColorStop(1.0,"rgb("+backgr2+"%,"+backgg2+"%,"+backgb2+"%)");
+     g.fillStyle = grbg;
+     g.arc(xc,yc,rad,0.0,2.0*Math.PI,false);
+     g.fill();
+     }
+     g.beginPath();
+gout="1."+g.font;
+//
+// *** borders
+//
+document.getElementById("gover").style.borderStyle=document.m1.bstyle.options[document.m1.bstyle.selectedIndex].value;
+document.getElementById("gover").style.borderWidth=document.m1.bwidth.options[document.m1.bwidth.selectedIndex].value+"px";
+tempbw=document.m1.bwidth.options[document.m1.bwidth.selectedIndex].value;
+if (parseInt(tempbw) > 0)
+    {
+    tempadj=document.getElementById("gover").style.top;
+    tempadj=tempadj.replace("px","");
+    tempadj=parseInt(tempadj)-parseInt(tempbw);
+    document.getElementById("gover").style.top=tempadj.toString()+"px";
+    tempadj=document.getElementById("gover").style.left;
+    tempadj=tempadj.replace("px","");
+    tempadj=parseInt(tempadj)-parseInt(tempbw);
+    document.getElementById("gover").style.left=tempadj.toString()+"px";
+    }
+gfbcr=document.getElementById("gfbcr").value;
+gfbcg=document.getElementById("gfbcg").value;
+gfbcb=document.getElementById("gfbcb").value
+document.getElementById("gover").style.borderColor="rgb("+gfbcr+"%,"+gfbcg+"%,"+gfbcb+"%)";
+document.getElementById("gfbco").style.backgroundColor="rgb("+gfbcr+"%,"+gfbcg+"%,"+gfbcb+"%)";
+//
+// *** display text1 and text2
+//
+ document.getElementById("t1span").innerHTML="<nobr>"+document.getElementById("t1").value+"</nobr>";
+ document.getElementById("t2span").innerHTML="<nobr>"+document.getElementById("t2").value+"</nobr>";
+ document.getElementById("i1").innerHTML="<nobr>"+document.getElementById("t1").value+"</nobr>";
+ document.getElementById("i2").innerHTML="<nobr>"+document.getElementById("t2").value+"</nobr>";
+//
+// *** set font family for texts and display value
+//
+ document.getElementById("t1span").style.fontFamily=document.m1.font1.options[document.m1.font1.selectedIndex].value;
+ document.getElementById("t2span").style.fontFamily=document.m1.font2.options[document.m1.font2.selectedIndex].value;
+ document.getElementById("disp_span").style.fontFamily=document.m1.font3.options[document.m1.font3.selectedIndex].value;
+ document.getElementById("testw").style.fontFamily=document.m1.font3.options[document.m1.font3.selectedIndex].value;
+//
+// *** size for texts and display value
+//
+ document.getElementById("t1span").style.fontSize   =document.m1.font1s.options[document.m1.font1s.selectedIndex].value+"px";
+ document.getElementById("t2span").style.fontSize   =document.m1.font2s.options[document.m1.font2s.selectedIndex].value+"px";
+ document.getElementById("disp_span").style.fontSize=document.m1.font3s.options[document.m1.font3s.selectedIndex].value+"px";
+ document.getElementById("testw").style.fontSize=document.m1.font3s.options[document.m1.font3s.selectedIndex].value+"px";
+ disp_span_ht=document.m1.font3s.options[document.m1.font3s.selectedIndex].value;
+ disp_span_ht=parseInt(disp_span_ht)*1.3;
+ document.getElementById("disp_span").style.height=disp_span_ht.toString()+"px";
+ document.getElementById("testw").style.height=disp_span_ht.toString()+"px";
+ document.getElementById("disp_span").style.lineHeight=disp_span_ht.toString()+"px";
+ document.m1.gauge_display_height.value=disp_span_ht.toString(); 
+ document.getElementById("testw").style.lineHeight=disp_span_ht.toString()+"px";
+ document.m1.gauge_display_line_height.value=disp_span_ht.toString(); 
+//
+// *** determine title widths
+//
+ g.font=document.getElementById("t1span").style.font;
+ tw1=g.measureText(document.getElementById("t1").value).width;
+ g.font=document.getElementById("t2span").style.font;
+ tw2=g.measureText(document.getElementById("t2").value).width;
+ gout=gout+"<br>2. "+g.font;
+//
+// *** get start and stop and calculate initial display value
+//
+ disp1=document.m1.astart.value;
+ disp2=document.m1.aend.value;
+ if (typeof document.getElementById("usg") != "undefined") //***set min max values of the test slider if it exists
+   {
+    document.m1.usg.max=parseInt(document.m1.aend.value);
+    document.m1.usg.min=parseInt(document.m1.astart.value);
+   }
+ document.getElementById("sc2start").innerHTML=disp1;
+ document.getElementById("sc3start").innerHTML=disp1;
+ document.getElementById("sc2end").innerHTML=disp2;
+ document.getElementById("sc3end").innerHTML=disp2;
+
+ document.m1.twoc.min=parseInt(disp1);
+ document.m1.twoc.max=parseInt(disp2);
+
+ if( parseInt(document.m1.twoc.value) > parseInt(document.m1.twoc.max) ) document.m1.twoc.value=parseInt(document.m1.twoc.max);
+ if( parseInt(document.m1.twoc.value) < parseInt(document.m1.twoc.min) ) document.m1.twoc.value=parseInt(document.m1.twoc.min);
+ document.getElementById("sc2a").innerHTML=document.m1.twoc.value.toString();
+
+
+ document.m1.sc31.min=parseInt(disp1)+1;
+ document.m1.sc31.max=parseInt(document.m1.sc32.value);
+ document.m1.sc32.min=parseInt(document.m1.sc31.value);
+ document.m1.sc32.max=parseInt(disp2)-1;
+ if(document.m1.sc32.value > (parseInt(disp2)-1 )) document.m1.sc32.value=(parseInt(disp2)-1);
+ if(document.m1.sc31.value < (parseInt(disp1)+1 )) document.m1.sc31.value=(parseInt(disp1)+1);
+ document.getElementById("sc3bo1").innerHTML=document.m1.sc32.value;
+ document.getElementById("sc3bo2").innerHTML=document.m1.sc32.value;
+ document.getElementById("sc3ao1").innerHTML=document.m1.sc31.value.toString();
+ document.getElementById("sc3ao2").innerHTML=document.m1.sc31.value.toString();
+ //
+ // ***get and adjust display value
+ //
+ disp_val=parseFloat(document.getElementById("usg").value);
+ disp_val=disp_val.toFixed(document.m1.dig.selectedIndex);
+//
+// *** adjust display DIV width to accommodate widest value
+//
+// *** change bold, italic and underline for display value
+//
+if (document.m1.cbbd.checked)
+    {
+     document.getElementById("disp_span").style.fontWeight="bold";
+     document.getElementById("testw").style.fontWeight="bold";
+    }
+else
+    {
+     document.getElementById("disp_span").style.fontWeight="normal";
+     document.getElementById("testw").style.fontWeight="normal";
+    }
+if (document.m1.cbid.checked)
+   {
+    document.getElementById("disp_span").style.fontStyle="italic";
+    document.getElementById("testw").style.fontStyle="italic";
+   }
+else
+   {
+    document.getElementById("disp_span").style.fontStyle="normal";
+    document.getElementById("testw").style.fontStyle="normal";
+   }
+if (document.m1.cbud.checked)
+   {
+     document.getElementById("disp_span").style.textDecoration="underline";
+     document.getElementById("testw").style.textDecoration="underline";
+    usw=1;
+   }
+else
+   {
+     document.getElementById("disp_span").style.textDecoration="none";
+     document.getElementById("testw").style.textDecoration="none";
+    usw=0;
+   }
+//
+//
+//
+
+
+ disp1w=parseFloat(disp1).toFixed(document.m1.dig.selectedIndex);
+ document.getElementById("testw").innerHTML=disp1w.toString()+"&nbsp;";
+ w1=document.getElementById("testw").offsetWidth;
+ document.getElementById("testw").innerHTML=disp1w.toString();
+ w1p=document.getElementById("testw").offsetWidth;
+ 
+ disp2w=parseFloat(disp2).toFixed(document.m1.dig.selectedIndex);
+ document.getElementById("testw").innerHTML=disp2w.toString()+"&nbsp;";
+ w2=document.getElementById("testw").offsetWidth;
+ document.getElementById("testw").innerHTML=disp2w.toString();
+ w2p=document.getElementById("testw").offsetWidth;
+   
+ if (w1>w2)
+      {
+       document.getElementById("disp_span").style.width=parseInt(w1p).toString()+"px";
+       document.m1.gauge_display_width.value=parseInt(w1p).toString();
+       document.m1.gauge_display_padding.value=(parseInt(w1)-parseInt(w1p)).toString();
+       finalp=parseInt(w1)-parseInt(w1p);
+       document.getElementById("disp_span").style.paddingRight=finalp.toString()+"px";
+       document.getElementById("testw").style.paddingRight=finalp.toString()+"px";
+       document.getElementById("testw").innerHTML=disp1w.toString();
+      }
+ else
+      {
+       document.getElementById("disp_span").style.width=parseInt(w2p).toString()+"px";
+       document.m1.gauge_display_width.value=parseInt(w2p).toString();
+       document.m1.gauge_display_padding.value=(parseInt(w2)-parseInt(w2p)).toString();
+       finalp=parseInt(w2)-parseInt(w2p);	  
+       document.getElementById("disp_span").style.paddingRight=finalp.toString()+"px";	   
+       document.getElementById("testw").style.paddingRight=finalp.toString()+"px";
+       document.getElementById("testw").innerHTML=disp2w.toString();
+      }
+document.getElementById("disp_span").innerHTML=document.m1.usg.value;
+
+//
+// *** set display value
+//
+    finalw=document.getElementById("disp_span").offsetWidth;
+    document.getElementById("disp_span").style.top=(yc+66).toString()+"px";
+    document.getElementById("disp_span").style.left=(xc-finalw/2).toString()+"px";
+ 
+ if (fsw > 0)
+//
+//  next two lines always center the display value
+//
+//   if (odvleft != document.getElementById("disp_span").style.left)
+//          document.getElementById("disp_span").style.left=(xc-finalw/2).toString()+"px"
+ document.getElementById("i3").innerHTML=disp_val;
+ document.m1.usg.max=parseInt(document.m1.aend.value);
+ document.m1.usg.min=parseInt(document.m1.astart.value);
+ document.getElementById("mintest").innerHTML=disp1+"&nbsp;";
+ document.getElementById("maxtest").innerHTML="&nbsp;"+disp2;
+//
+// *** on the first execution:
+//     place the two titles and the display value centered in the gauge
+//
+
+if (fsw==0)
+   {
+    document.getElementById("t1span").style.top=(116).toString()+"px";
+    document.getElementById("t2span").style.top=(200).toString()+"px";
+    document.getElementById("t1span").style.left=(xc-tw1/2).toString()+"px";
+    document.getElementById("t2span").style.left=(xc-tw2/2).toString()+"px";
+    odvleft=document.getElementById("disp_span").style.left=(xc-finalw/2).toString()+"px";
+//
+// *** if checked -- make the two titles colors the same
+//
+  if (document.m1.cb1.checked)
+     {
+      document.getElementById("sro").innerHTML=document.getElementById("pr").value.toString();
+      document.getElementById("sgo").innerHTML=document.getElementById("pg").value.toString();
+      document.getElementById("sbo").innerHTML=document.getElementById("pb").value.toString();
+      document.getElementById("sr").value=document.getElementById("pr").value;
+      document.getElementById("sg").value=document.getElementById("pg").value;
+      document.getElementById("sb").value=document.getElementById("pb").value;
+      document.getElementById("sdiv").style.backgroundColor="rgb("+document.getElementById("sr").value.toString()+"%,"+document.getElementById("sg").value.toString()+"%,"+document.getElementById("sb").value.toString()+"%)";
+     }
+     else
+//
+// *** make the secondary title sample its own color
+//
+     {
+      document.getElementById("sdiv").style.backgroundColor="rgb("+document.getElementById("sr").value.toString()+"%,"+document.getElementById("sg").value.toString()+"%,"+document.getElementById("sb").value.toString()+"%)";
+     }
+    fsw=1; // *** set switch to allow the above three elements to be draggale AFTER they are displayed
+   }
+
+//
+// *** show the current top and left locations of the two titles and value display
+//
+document.getElementById("ct1").innerHTML=document.getElementById("t1span").style.top.toString();
+document.getElementById("cl1").innerHTML=document.getElementById("t1span").style.left.toString();
+document.getElementById("ct2").innerHTML=document.getElementById("t2span").style.top.toString();
+document.getElementById("cl2").innerHTML=document.getElementById("t2span").style.left.toString();
+document.getElementById("ct3").innerHTML=document.getElementById("disp_span").style.top.toString();
+document.getElementById("cl3").innerHTML=document.getElementById("disp_span").style.left.toString();
+
+//
+// *** change bold, italic and underline for the 1st title
+//
+if (document.m1.cbbp.checked)
+    document.getElementById("t1span").style.fontWeight="bold";
+else
+    document.getElementById("t1span").style.fontWeight="normal";
+if (document.m1.cbip.checked)
+   document.getElementById("t1span").style.fontStyle="italic";
+else
+   document.getElementById("t1span").style.fontStyle="normal";
+if (document.m1.cbup.checked)
+   document.getElementById("t1span").style.textDecoration="underline";
+else
+   document.getElementById("t1span").style.textDecoration="none";
+//
+// *** change bold, italic and underline for the 2nd title
+//
+if (document.m1.cbbs.checked)
+    document.getElementById("t2span").style.fontWeight="bold";
+else
+    document.getElementById("t2span").style.fontWeight="normal";
+if (document.m1.cbis.checked)
+   document.getElementById("t2span").style.fontStyle="italic";
+else
+   document.getElementById("t2span").style.fontStyle="normal";
+if (document.m1.cbus.checked)
+   document.getElementById("t2span").style.textDecoration="underline";
+else
+   document.getElementById("t2span").style.textDecoration="none";
+//
+// *** set colors for the titles
+//
+ r1=document.m1.pr.value;
+ g1=document.m1.pg.value;
+ b1=document.m1.pb.value;
+ document.getElementById("t1span").style.color= "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ r2=document.m1.sr.value;
+ g2=document.m1.sg.value;
+ b2=document.m1.sb.value;
+ document.getElementById("t2span").style.color= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+//
+// *** set color values in the color picker and the color sample for both titles
+//
+ document.getElementById("pro").innerHTML=document.getElementById("pr").value.toString();
+ document.getElementById("pgo").innerHTML=document.getElementById("pg").value.toString();
+ document.getElementById("pbo").innerHTML=document.getElementById("pb").value.toString();
+ document.getElementById("sro").innerHTML=document.getElementById("sr").value.toString();
+ document.getElementById("sgo").innerHTML=document.getElementById("sg").value.toString();
+ document.getElementById("sbo").innerHTML=document.getElementById("sb").value.toString();
+ document.getElementById("pdiv").style.backgroundColor="rgb("+document.getElementById("pr").value.toString()+"%,"+document.getElementById("pg").value.toString()+"%,"+document.getElementById("pb").value.toString()+"%)";
+ document.getElementById("sdiv").style.backgroundColor="rgb("+document.getElementById("sr").value.toString()+"%,"+document.getElementById("sg").value.toString()+"%,"+document.getElementById("sb").value.toString()+"%)";
+//
+// *** set colors and attributes for the display value
+//
+ r1=document.m1.d1r.value;
+ g1=document.m1.d1g.value;
+ b1=document.m1.d1b.value;
+ document.getElementById("disp_span").style.color    = "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ document.getElementById("d1c").style.backgroundColor= "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ r2=document.m1.d2r.value;
+ g2=document.m1.d2g.value;
+ b2=document.m1.d2b.value;
+ document.getElementById("disp_span").style.backgroundColor= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+ document.getElementById("d2c").style.backgroundColor      = "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+ r3=document.m1.d3r.value;
+ g3=document.m1.d3g.value;
+ b3=document.m1.d3b.value;
+ document.getElementById("disp_span").style.textAlign= "right";
+ if (document.getElementById("gvbt0").checked) document.getElementById("disp_span").style.borderStyle="none";
+ if (document.getElementById("gvbt1").checked) document.getElementById("disp_span").style.borderStyle="inset";
+ if (document.getElementById("gvbt2").checked) document.getElementById("disp_span").style.borderStyle="outset";
+ if (document.getElementById("gvbt3").checked) document.getElementById("disp_span").style.borderStyle="solid";
+ document.getElementById("gvbwo").innerHTML=document.m1.gvbw.value;
+  if (document.getElementById("gvbt0").checked)
+      {
+        document.getElementById("disp_span").style.borderWidth="0px";
+        tempbw=0;
+      }
+  else
+      {
+       document.getElementById("disp_span").style.borderWidth=document.m1.gvbw.value+"px";
+       tempbw=parseInt(document.m1.gvbw.value);
+      }
+ document.getElementById("disp_span").style.borderColor= "rgb("+r3+"%,"+g3+"%,"+b3+"%)";
+ document.getElementById("d3c").style.backgroundColor= "rgb("+r3+"%,"+g3+"%,"+b3+"%)";
+//
+// *** set colors values for display color picking
+//
+ document.getElementById("d1o").innerHTML=document.getElementById("d1r").value.toString();
+ document.getElementById("d2o").innerHTML=document.getElementById("d1g").value.toString();
+ document.getElementById("d3o").innerHTML=document.getElementById("d1b").value.toString();
+ document.getElementById("d4o").innerHTML=document.getElementById("d2r").value.toString();
+ document.getElementById("d5o").innerHTML=document.getElementById("d2g").value.toString();
+ document.getElementById("d6o").innerHTML=document.getElementById("d2b").value.toString();
+ document.getElementById("d7o").innerHTML=document.getElementById("d3r").value.toString();
+ document.getElementById("d8o").innerHTML=document.getElementById("d3g").value.toString();
+ document.getElementById("d9o").innerHTML=document.getElementById("d3b").value.toString();
+//
+// *** show the 8 needle design parameters from their sliders
+//
+ document.getElementById("gn1o").innerHTML=document.getElementById("gn1").value.toString();
+ document.getElementById("gn2o").innerHTML=document.getElementById("gn2").value.toString();
+ document.getElementById("gn3o").innerHTML=document.getElementById("gn3").value.toString();
+ document.getElementById("gn4o").innerHTML=document.getElementById("gn4").value.toString();
+ document.getElementById("gn5o").innerHTML=document.getElementById("gn5").value.toString();
+ document.getElementById("gn6o").innerHTML=document.getElementById("gn6").value.toString();
+ document.getElementById("gn7o").innerHTML=document.getElementById("gn7").value.toString();
+ document.getElementById("gn8o").innerHTML=document.getElementById("gn8").value.toString();
+//
+// *** set colors for the needle and cap
+//
+ r1=document.m1.gnr.value;
+ g1=document.m1.gng.value;
+ b1=document.m1.gnb.value;
+ document.getElementById("n1o").innerHTML=r1.toString();
+ document.getElementById("n2o").innerHTML=g1.toString();
+ document.getElementById("n3o").innerHTML=b1.toString();
+ document.getElementById("gnc").style.backgroundColor= "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ r2=document.m1.gcr.value;
+ g2=document.m1.gcg.value;
+ b2=document.m1.gcb.value;
+ document.getElementById("n4o").innerHTML=r2.toString();
+ document.getElementById("n5o").innerHTML=g2.toString();
+ document.getElementById("n6o").innerHTML=b2.toString();
+ document.getElementById("gcc").style.backgroundColor= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+//
+// *** start the gauge face display
+//
+ca=-90.0;
+begclock=document.m1.s_time.value;
+var temp=begclock.split(":");
+deg1    = parseFloat(temp[0])*30.0+parseFloat(temp[1])/2.0+ca;
+begangle=deg1*Math.PI/180.0;
+endclock=document.m1.e_time.value;
+var temp=endclock.split(":");
+deg2    = parseFloat(temp[0])*30.0+parseFloat(temp[1])/2.0+ca;
+endangle= deg2*Math.PI/180.0;
+tickstartval=parseFloat(document.m1.astart.value);
+tickstopval=parseFloat(document.m1.aend.value);
+//
+// **** scale colors
+//
+sc1r=document.m1.sc1r.value;
+sc1g=document.m1.sc1g.value;
+sc1b=document.m1.sc1b.value;
+document.getElementById("sc1ro").innerHTML=sc1r.toString();
+document.getElementById("sc1go").innerHTML=sc1g.toString();
+document.getElementById("sc1bo").innerHTML=sc1b.toString();
+sc2r=document.m1.sc2r.value;
+sc2g=document.m1.sc2g.value;
+sc2b=document.m1.sc2b.value;
+document.getElementById("sc2ro").innerHTML=sc2r.toString();
+document.getElementById("sc2go").innerHTML=sc2g.toString();
+document.getElementById("sc2bo").innerHTML=sc2b.toString();
+sc3r=document.m1.sc3r.value;
+sc3g=document.m1.sc3g.value;
+sc3b=document.m1.sc3b.value;
+document.getElementById("sc3ro").innerHTML=sc3r.toString();
+document.getElementById("sc3go").innerHTML=sc3g.toString();
+document.getElementById("sc3bo").innerHTML=sc3b.toString();
+document.getElementById("sc1").style.backgroundColor="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+document.getElementById("sc2").style.backgroundColor="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+document.getElementById("sc3").style.backgroundColor="rgb("+sc3r+"%,"+sc3g+"%,"+sc3b+"%)";
+scradw=document.m1.scrw.value;
+document.getElementById("scrwo").innerHTML=document.m1.scrw.value;
+if (deg1 <= deg2)
+   dsw=1;
+else
+   dsw=0;
+//
+// *** tick marks
+//
+tm1=document.m1.majt.value;
+if (tm1.length>0)
+    {
+     tm1=parseInt(tm1);
+     majt_out.innerHTML=tm1.toString();
+  majt_out2.innerHTML=" Subdivisions ("+document.m1.majt.min.toString()+" &rarr; "+document.m1.majt.max.toString()+")";
+     }
+tm2=document.m1.mint.value;
+if (tm2.length  > 0)
+    {
+     tm2=parseInt(tm2);
+     mint_out.innerHTML=tm2.toString();
+  mint_out2.innerHTML=" Subdivisions ("+document.m1.mint.min.toString()+" &rarr; "+document.m1.mint.max.toString()+")";
+    }
+tm1len=document.m1.majtlen.value;
+if (tm1len.length>0)
+    {
+     tm1len=parseInt(tm1len);
+     majtlen_out.innerHTML=tm1len.toString();
+  majtlen_out2.innerHTML=" Length in pixels ("+document.m1.majtlen.min.toString()+" &rarr; "+document.m1.majtlen.max.toString()+")";
+     }
+tm2len=document.m1.mintlen.value;
+if (tm2len.length  > 0)
+    {
+     tm2len=parseInt(tm2len);
+     mintlen_out.innerHTML=tm2len.toString();
+  mintlen_out2.innerHTML=" Length in Pixels ("+document.m1.mintlen.min.toString()+" &rarr; "+document.m1.mintlen.max.toString()+")";
+    }
+//
+// ***collect arc and tick colors
+//
+if (document.getElementById("scnum1").checked)
+   {
+    colorc=1;
+ if(document.getElementById("scnum11").checked) colv[0]="rgb(0%,0%,0%)";
+ if(document.getElementById("scnum12").checked) colv[0]="rgb(100%,100%,100%)";
+ if(document.getElementById("scnum13").checked) colv[0]="rgb("+sc1r.toString()+"%,"+sc1g.toString()+"%,"+sc1b.toString()+"%)";
+ cab[0]=0.0;
+ cab[1]=1.0;
+ }
+
+if (document.getElementById("scnum2").checked)
+   {
+    colorc=2;
+    colv[0]="rgb("+sc1r.toString()+"%,"+sc1g.toString()+"%,"+sc1b.toString()+"%)";
+    colv[1]="rgb("+sc2r.toString()+"%,"+sc2g.toString()+"%,"+sc2b.toString()+"%)";
+ cab[0]=0.0;
+ cab[1]=(parseInt(document.m1.twoc.value)-parseInt(disp1))/(parseInt(disp2)-parseInt(disp1));
+ cab[2]=1.0
+ }
+if (document.getElementById("scnum3").checked)
+   {
+    colorc=3;
+    colv[0]="rgb("+sc1r.toString()+"%,"+sc1g.toString()+"%,"+sc1b.toString()+"%)";
+    colv[1]="rgb("+sc2r.toString()+"%,"+sc2g.toString()+"%,"+sc2b.toString()+"%)";
+ colv[2]="rgb("+sc3r.toString()+"%,"+sc3g.toString()+"%,"+sc3b.toString()+"%)";
+ cab[0]=0.0;
+ cab[1]=(parseInt(document.m1.sc31.value)-parseInt(disp1))/(parseInt(disp2)-parseInt(disp1));
+ cab[2]=(parseInt(document.m1.sc32.value)-parseInt(disp1))/(parseInt(disp2)-parseInt(disp1));
+ cab[3]=1.0
+ }
+if (begclock==endclock)
+   {
+    sweep=360;
+    tpick.innerHTML="Sweep="+sweep+" degrees deg1="+deg1+" deg2="+deg2;
+   }
+else
+   {
+    if (document.getElementById("cw").checked) // *** clockwise needle rotation
+       {
+        if (dsw==1)
+           sweep=deg2-deg1;
+        else
+           sweep=360-deg1+deg2;
+        ctickdiff=(tickstopval-tickstartval)/tm1;
+        ctickdiff2=ctickdiff/tm2;
+        ctick=parseFloat(tickstartval);
+        tickdif=(sweep)/tm1;
+        tickdif2=tickdif/tm2;
+        asweep=sweep/colorc;
+        if (scradw>0)
+  {
+  g.lineWidth=scradw;
+  swangle[0]=begangle;
+  swangle[1]=swangle[0]+sweep*Math.PI/180.0*cab[1];
+  swangle[2]=swangle[1]+sweep*Math.PI/180.0*(cab[2]-cab[1]);
+  swangle[3]=endangle;
+  for (k=0;k<colorc;k++)
+      {
+        g.strokeStyle=colv[k];
+        g.beginPath();
+        g.arc(xc,yc,rad2,swangle[k],swangle[k+1],false);
+        g.stroke();
+    }
+
+  }
+        degtemp=deg1+90.0;
+       }
+    else // *** counterclockwise needle rotation
+       {
+        if (dsw==0)
+           sweep=deg1-deg2;
+        else
+           sweep=360-(deg2-deg1);
+        ctickdiff=-(tickstopval-tickstartval)/tm1;
+        ctickdiff2=ctickdiff/tm2;
+        ctick=parseFloat(tickstopval);
+        tickdif=(sweep)/tm1;
+        tickdif2=tickdif/tm2;
+  if (scradw>0)
+     {
+        g.lineWidth=scradw;
+        swangle[0]=begangle;
+        swangle[1]=swangle[0]-sweep*Math.PI/180.0*cab[1];
+        swangle[2]=swangle[1]-sweep*Math.PI/180.0*(cab[2]-cab[1]);
+        swangle[3]=endangle
+        for (k=0;k<colorc;k++)
+            {
+             if (colorc==1) g.strokeStyle=colv[k];
+             if (colorc==2) g.strokeStyle=colv[k];
+             if (colorc==3) g.strokeStyle=colv[k];
+             g.beginPath();
+             g.arc(xc,yc,rad2,swangle[k],swangle[k+1],true);
+             g.stroke();
+             }
+      }
+        degtemp=deg2+90.0;
+       }
+   }
+//
+// *** scale text color
+//
+rgs=document.getElementById("gscr").value;
+ggs=document.getElementById("gscg").value;
+bgs=document.getElementById("gscb").value;
+g.fillStyle ="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+scaletextfillcolor="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+g.strokeStyle="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+if (document.m1.gsb.checked)
+    fw="bold";
+else
+    fw="normal";
+gsfontsize=document.m1.gsfonts.options[document.m1.gsfonts.selectedIndex].value;
+gtemp2=fw+" "+document.m1.gsfonts.options[document.m1.gsfonts.selectedIndex].value+"px"+" "+document.m1.gsfont.options[document.m1.gsfont.selectedIndex].value;
+g.font=gtemp2;
+//
+// *** draw tick marks and place scale value
+//
+tickoffset=parseFloat(scradw)/2.0;
+if (tm1 >0)
+  {
+   for (i=0;i<(tm1+1);i++)
+    {
+     g.lineWidth=1;
+     if (document.getElementById("tc1").checked) g.strokeStyle="rgb(0%,0%,0%)";
+     if (document.getElementById("tc2").checked) g.strokeStyle="rgb(100%,100%,100%)";
+     if (document.getElementById("tc3").checked)
+        {
+        if (document.getElementById("scnum1").checked)
+         {
+          if (document.getElementById("scnum11").checked) g.strokeStyle="rgb(0%,0%,0%)";
+          if (document.getElementById("scnum12").checked) g.strokeStyle="rgb(100%,100%,100%)";
+          if (document.getElementById("scnum13").checked) g.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+         }
+     if (document.getElementById("scnum2").checked)
+        {
+         if (ctick < parseFloat(document.m1.twoc.value) )
+             g.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+         else
+             g.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+         }
+     if (document.getElementById("scnum3").checked)
+        {
+         if (ctick < parseFloat(document.m1.sc31.value) )
+            g.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+         else
+            if (ctick > parseFloat(document.m1.sc32.value) )
+                g.strokeStyle="rgb("+sc3r+"%,"+sc3g+"%,"+sc3b+"%)";
+            else
+                g.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+
+        }
+     }
+     x1=xc+Math.sin((degtemp)*Math.PI/180.0)*(rad2-tickoffset);
+     y1=yc+Math.cos((degtemp)*Math.PI/180.0)*(rad2-tickoffset)*(-1.0);
+     x2=xc+Math.sin((degtemp)*Math.PI/180.0)*(rad2-tm1len-tickoffset);
+     y2=yc+Math.cos((degtemp)*Math.PI/180.0)*(rad2-tm1len-tickoffset)*(-1.0);
+     g.beginPath();
+     g.moveTo(x1,y1);
+     g.lineTo(x2,y2);
+     g.stroke();
+     tvalue=ctick.toFixed(document.m1.dig.selectedIndex);
+     txtmeasure=g.measureText(tvalue).width;
+     x3=xc+Math.sin((degtemp)*Math.PI/180.0)*(rad2-25);
+     y3=yc+Math.cos((degtemp)*Math.PI/180.0)*(rad2-25)*(-1.0);
+     g.fillStyle=scaletextfillcolor;
+     g.fillText(tvalue,x3-txtmeasure/2,y3+gsfontsize/2.0);
+     if (tm2 > 0 && i != tm1)
+       {
+        deg2=degtemp;
+        ctick2=ctick;
+        for (k=0;k<tm2;k++)
+            {
+             g.lineWidth=1;
+             if (document.getElementById("tc1").checked) g.strokeStyle="rgb(0%,0%,0%)";
+             if (document.getElementById("tc2").checked) g.strokeStyle="rgb(100%,100%,100%)";
+             if (document.getElementById("tc3").checked)
+                {
+                 if (document.getElementById("scnum1").checked)
+                    {
+                     if (document.getElementById("scnum11").checked) g.strokeStyle="rgb(0%,0%,0%)";
+                     if (document.getElementById("scnum12").checked) g.strokeStyle="rgb(100%,100%,100%)";
+                     if (document.getElementById("scnum13").checked) g.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+                    }
+                 if (document.getElementById("scnum2").checked)
+                    {
+                     if (ctick2 < parseFloat(document.m1.twoc.value) )
+                         g.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+                     else
+                         g.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+                     }
+                  if (document.getElementById("scnum3").checked)
+                     {
+                      if (ctick2 < parseFloat(document.m1.sc31.value) )
+                          g.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+                      else
+                          if (ctick2 > parseFloat(document.m1.sc32.value) )
+                              g.strokeStyle="rgb("+sc3r+"%,"+sc3g+"%,"+sc3b+"%)";
+                          else
+                              g.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+                      }
+                   }
+               x1=xc+Math.sin((deg2)*Math.PI/180.0)*(rad2-tickoffset);
+               y1=yc+Math.cos((deg2)*Math.PI/180.0)*(rad2-tickoffset)*(-1.0);
+               x2=xc+Math.sin((deg2)*Math.PI/180.0)*(rad2-tm2len-tickoffset);
+               y2=yc+Math.cos((deg2)*Math.PI/180.0)*(rad2-tm2len-tickoffset)*(-1.0);
+               g.beginPath();
+               g.moveTo(x1,y1);
+               g.lineTo(x2,y2);
+               g.stroke();
+               deg2=deg2+tickdif2;
+               ctick2=ctick2+ctickdiff2;
+             }
+     }
+     ctick=ctick+ctickdiff;
+     degtemp=degtemp+tickdif;
+    }
+  }
+  //
+  // *** needle definition
+  //
+ bw=parseInt(document.m1.gn3.value);
+ bw2=bw/2.0;
+ blen=parseInt(document.m1.gn2.value);
+ flen=parseInt(document.m1.gn1.value);
+ degp=150.0;
+ px1=-blen;
+ py1=-bw2;
+ px2=flen;
+ py2=-1;
+ px3=flen;
+ py3=1;
+ px4=-blen;
+ py4=bw2;
+ //
+ // *** needle
+ //
+ r1=document.m1.gnr.value;
+ g1=document.m1.gng.value;
+ b1=document.m1.gnb.value;
+ r2=document.m1.gcr.value;
+ g2=document.m1.gcg.value;
+ b2=document.m1.gcb.value;
+ document.getElementById("gnc").style.backgroundColor= "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ document.getElementById("gcc").style.backgroundColor= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+ g.fillStyle="rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ g.shadowColor = "black";
+ g.shadowOffsetX = parseInt(document.m1.gn6.value);
+ g.shadowOffsetY = parseInt(document.m1.gn7.value);
+ g.shadowBlur = parseInt(document.m1.gn8.value);
+ g.save();
+ g.translate(xc,yc);
+ pca=(parseFloat(disp_val)-parseFloat(disp1)) /(parseFloat(disp2)-parseFloat(disp1))
+ if (dsw==0 && document.getElementById("cw").checked) rangle=(sweep)*pca+deg1;
+ if (dsw==0 && document.getElementById("ccw").checked) rangle=(-sweep)*pca+deg1;
+ if (dsw==1 && document.getElementById("cw").checked) rangle=(sweep)*pca+deg1;
+ if (dsw==1 && document.getElementById("ccw").checked) rangle=(-sweep)*pca+deg1;
+ g.rotate(rangle*Math.PI/180.0);
+ g.beginPath();
+ g.moveTo(px1,py1);
+ g.lineTo(px2,py2);
+ g.lineTo(px3,py3);
+ g.lineTo(px4,py4);
+ g.lineTo(px1,py1);
+ g.closePath();
+ g.fill();
+ g.translate(-xc,-yc);
+ g.restore();
+//
+// *** needle cap (gncp checkbox)
+//
+//g.strokeStyle = "rgba(0,0,0,0.0)";
+if (!document.m1.gncp.checked)
+   {
+    caprad=parseInt(document.m1.gn4.value);
+    g.shadowOffsetX = parseInt(document.m1.gn6.value);
+    g.shadowOffsetY = parseInt(document.m1.gn7.value);
+    g.shadowBlur = parseInt(document.m1.gn8.value);
+    g.fillStyle="rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+    g.beginPath();
+    g.arc(xc,yc,caprad,2.0*Math.PI,false);
+    g.fill();
+    g.closePath();
+    }
+//
+// *** bezel
+//
+r1=document.m1.bzr1.value;
+g1=document.m1.bzg1.value;
+b1=document.m1.bzb1.value;
+document.getElementById("bzr1o").innerHTML=r1.toString();
+document.getElementById("bzg1o").innerHTML=g1.toString();
+document.getElementById("bzb1o").innerHTML=b1.toString();
+document.getElementById("bz1c").style.backgroundColor= "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+r2=document.m1.bzr2.value;
+g2=document.m1.bzg2.value;
+b2=document.m1.bzb2.value;
+document.getElementById("bzr2o").innerHTML=r2.toString();
+document.getElementById("bzg2o").innerHTML=g2.toString();
+document.getElementById("bzb2o").innerHTML=b2.toString();
+document.getElementById("bz2c").style.backgroundColor= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+document.getElementById("bz3o").innerHTML=document.m1.bz3.value;
+document.getElementById("bz6o").innerHTML=document.m1.bz6.value;
+document.getElementById("bz7o").innerHTML=document.m1.bz7.value;
+document.getElementById("bz8o").innerHTML=document.m1.bz8.value;
+if (!document.m1.nobz.checked)
+   {
+    g.beginPath();
+    var rwg=g.createLinearGradient(xc-rad/2-10,yc-rad/2-10,xc+rad/2,yc+rad/2);
+    bzc1="rgb("+r1+"%,"+g1+"%,"+b1+"%)"
+    bzc2="rgb("+r2+"%,"+g2+"%,"+b2+"%)"
+    rwg.addColorStop(0.0,bzc1);
+    rwg.addColorStop(1.0,bzc2);
+    g.strokeStyle = rwg;
+    g.shadowColor = "black";
+    g.shadowOffsetX = parseInt(document.m1.bz6.value);
+    g.shadowOffsetY =  parseInt(document.m1.bz7.value);
+    g.shadowBlur =  parseInt(document.m1.bz8.value);
+    g.lineWidth=parseInt(document.m1.bz3.value);
+    g.arc(xc,yc,(rad),0.0,2.0*Math.PI,false);
+    g.closePath();
+    g.stroke();
+   }
+}
+function set_gauge()
+{
+ disp_val=document.m1.sg.value.toString();
+}
+function stop_make()
+{
+ clearInterval(show_cur);
+ running=false;
+}
+function start_make()
+{
+ show_cur=setInterval ("draw_cur()",100);
+ running=true;
+}
+function incmint(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.mint.value)<parseInt(document.m1.mint.max))
+        {
+         document.m1.mint.value=(parseInt(document.m1.mint.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.mint.value)>0)
+        {
+         document.m1.mint.value=(parseInt(document.m1.mint.value)-1).toString();
+        }
+     }
+}
+function incmajt(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.majt.value)<parseInt(document.m1.majt.max))
+        {
+         document.m1.majt.value=(parseInt(document.m1.majt.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.majt.value)>0)
+        {
+         document.m1.majt.value=(parseInt(document.m1.majt.value)-1).toString();
+        }
+     }
+}
+function incmintlen(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.mintlen.value)<parseInt(document.m1.mintlen.max))
+        {
+         document.m1.mintlen.value=(parseInt(document.m1.mintlen.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.mintlen.value)>0)
+        {
+         document.m1.mintlen.value=(parseInt(document.m1.mintlen.value)-1).toString();
+        }
+     }
+}
+function incmajtlen(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.majtlen.value)<parseInt(document.m1.majtlen.max))
+        {
+         document.m1.majtlen.value=(parseInt(document.m1.majtlen.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.majtlen.value)>0)
+        {
+         document.m1.majtlen.value=(parseInt(document.m1.majtlen.value)-1).toString();
+        }
+     }
+}
+function incgn1(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn1.value)<parseInt(document.m1.gn1.max))
+        {
+         document.m1.gn1.value=(parseInt(document.m1.gn1.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn1.value)>0)
+        {
+         document.m1.gn1.value=(parseInt(document.m1.gn1.value)-1).toString();
+        }
+     }
+}
+function incgn2(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn2.value)<parseInt(document.m1.gn2.max))
+        {
+         document.m1.gn2.value=(parseInt(document.m1.gn2.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn2.value)>0)
+        {
+         document.m1.gn2.value=(parseInt(document.m1.gn2.value)-1).toString();
+        }
+     }
+}
+function incgn3(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn3.value)<parseInt(document.m1.gn3.max))
+        {
+         document.m1.gn3.value=(parseInt(document.m1.gn3.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn3.value)>0)
+        {
+         document.m1.gn3.value=(parseInt(document.m1.gn3.value)-1).toString();
+        }
+     }
+}
+function incgn4(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn4.value)<parseInt(document.m1.gn4.max))
+        {
+         document.m1.gn4.value=(parseInt(document.m1.gn4.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn4.value)>0)
+        {
+         document.m1.gn4.value=(parseInt(document.m1.gn4.value)-1).toString();
+        }
+     }
+}
+function incgn5(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn5.value)<parseInt(document.m1.gn5.max))
+        {
+         document.m1.gn5.value=(parseInt(document.m1.gn5.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn5.value)>0)
+        {
+         document.m1.gn5.value=(parseInt(document.m1.gn5.value)-1).toString();
+        }
+     }
+}
+function incgn6(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn6.value)<parseInt(document.m1.gn6.max))
+        {
+         document.m1.gn6.value=(parseInt(document.m1.gn6.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn6.value)>0)
+        {
+         document.m1.gn6.value=(parseInt(document.m1.gn6.value)-1).toString();
+        }
+     }
+}
+function incgn7(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn7.value)<parseInt(document.m1.gn7.max))
+        {
+         document.m1.gn7.value=(parseInt(document.m1.gn7.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn7.value)>0)
+        {
+         document.m1.gn7.value=(parseInt(document.m1.gn7.value)-1).toString();
+        }
+     }
+}
+function incgn8(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gn8.value)<parseInt(document.m1.gn8.max))
+        {
+         document.m1.gn8.value=(parseInt(document.m1.gn8.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gn8.value)>0)
+        {
+         document.m1.gn8.value=(parseInt(document.m1.gn8.value)-1).toString();
+        }
+     }
+}
+
+function incbz3(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.bz3.value)<parseInt(document.m1.bz3.max))
+        {
+         document.m1.bz3.value=(parseInt(document.m1.bz3.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.bz3.value)>0)
+        {
+         document.m1.bz3.value=(parseInt(document.m1.bz3.value)-1).toString();
+        }
+     }
+}
+function incbz6(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.bz6.value)<parseInt(document.m1.bz6.max))
+        {
+         document.m1.bz6.value=(parseInt(document.m1.bz6.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.bz6.value)>0)
+        {
+         document.m1.bz6.value=(parseInt(document.m1.bz6.value)-1).toString();
+        }
+     }
+}
+function incbz7(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.bz7.value)<parseInt(document.m1.bz7.max))
+        {
+         document.m1.bz7.value=(parseInt(document.m1.bz7.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.bz7.value)>0)
+        {
+         document.m1.bz7.value=(parseInt(document.m1.bz7.value)-1).toString();
+        }
+     }
+}
+function incbz8(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.bz8.value)<parseInt(document.m1.bz8.max))
+        {
+         document.m1.bz8.value=(parseInt(document.m1.bz8.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.bz8.value)>0)
+        {
+         document.m1.bz8.value=(parseInt(document.m1.bz8.value)-1).toString();
+        }
+     }
+}
+
+function scr(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.scrw.value)<parseInt(document.m1.scrw.max))
+        {
+         document.m1.scrw.value=(parseInt(document.m1.scrw.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.scrw.value)>0)
+        {
+         document.m1.scrw.value=(parseInt(document.m1.scrw.value)-1).toString();
+        }
+     }
+}
+function inctwoc(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.twoc.value)<parseInt(document.m1.twoc.max))
+        {
+         document.m1.twoc.value=(parseInt(document.m1.twoc.value)+1);
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.twoc.value)>parseInt(document.m1.twoc.min))
+        {
+         document.m1.twoc.value=(parseInt(document.m1.twoc.value)-1);
+        }
+     }
+}
+function incthreec1(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.sc31.value)<parseInt(document.m1.sc31.max))
+        {
+         document.m1.sc31.value=(parseInt(document.m1.sc31.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.sc31.value)>0)
+        {
+         document.m1.sc31.value=(parseInt(document.m1.sc31.value)-1).toString();
+        }
+     }
+}
+function incthreec2(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.sc32.value)<parseInt(document.m1.sc32.max))
+        {
+         document.m1.sc32.value=(parseInt(document.m1.sc32.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.sc32.value)>0)
+        {
+         document.m1.sc32.value=(parseInt(document.m1.sc32.value)-1).toString();
+        }
+     }
+}
+function incgvbw(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.gvbw.value)<parseInt(document.m1.gvbw.max))
+        {
+         document.m1.gvbw.value=(parseInt(document.m1.gvbw.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.gvbw.value)>0)
+        {
+         document.m1.gvbw.value=(parseInt(document.m1.gvbw.value)-1).toString();
+        }
+     }
+}
+function inctv(ud)
+{
+ if (ud==1)
+    {
+     if (parseInt(document.m1.usg.value)<parseInt(document.m1.usg.max))
+        {
+         document.m1.usg.value=(parseInt(document.m1.usg.value)+1).toString();
+        }
+     }
+ else
+    {
+     if (parseInt(document.m1.usg.value)>0)
+        {
+         document.m1.usg.value=(parseInt(document.m1.usg.value)-1).toString();
+        }
+     }
+}
+function repa(vn,newv)
+{
+  oldv="**"+vn.toString()+"**";
+  while (tempos.indexOf(oldv)>-1)
+         {
+          tempos=tempos.replace(oldv,newv);
+         }
+}
+function mg()
+{
+ poster(2);
+ document.m1.ta.value=""
+ crlf=String.fromCharCode(10);
+ nos="";
+ for (i=0;i<174;i++)
+      {
+    if(document.m1.elements[i].value=="+" ||document.m1.elements[i].value=="-")
+         {
+         }
+       else
+         {
+      nos=nos+"element="+i.toString()+" "+document.m1.elements[i].name+" (id="+document.m1.elements[i].id+") = "+document.m1.elements[i].value+crlf;
+         }
+       }
+ document.m1.ta.value=nos;
+ tempos=tempos_old;
+ repa(1,document.m1.elements[1].value);
+ repa(4,document.m1.elements[4].value);
+ repa(5,document.m1.elements[5].value);
+ repa(6,document.m1.elements[6].value);
+ repa(7,document.m1.elements[7].value);
+ repa(8,document.m1.elements[8].value);
+ repa(9,document.m1.elements[9].value);
+ repa(10,document.m1.elements[10].value);
+ if (document.m1.elements[11].checked)
+     repa(11,1);
+ else
+     repa(11,0);
+ if (document.m1.elements[12].checked)
+     repa(12,1);
+ else
+     repa(12,0);
+ repa(13,document.m1.elements[13].value);
+ repa(14,document.m1.elements[14].value);
+ repa(15,document.m1.elements[15].value);
+ if (document.m1.bgradsw.checked)       // *** use 16 as the gauge background color or gradient switch target (bgradsw 1 radial if checked ow 0 solid)
+    repa(16,1);
+ else
+    repa(16,0);
+ repa(17,document.m1.elements[17].value);
+ repa(18,document.m1.elements[18].value);
+ repa(19,document.m1.elements[19].value);
+ repa(20,document.m1.elements[20].value);
+ repa(21,document.m1.elements[21].value);
+ if (document.m1.gsb.checked)            // *** use 22 as switch for gauge scale bold text
+    repa(22,1);
+ else
+    repa(22,0);
+ repa(23,document.m1.elements[23].value);
+ repa(24,document.m1.elements[24].value);
+ repa(25,document.m1.elements[25].value);
+ repa(26,document.m1.elements[26].value);
+ repa(27,document.m1.elements[27].value);
+ repa(28,document.m1.elements[28].value);
+ repa(29,document.m1.elements[29].value);
+ if (document.m1.gfchk.checked)       // *** use 30 as the gauge field switch target (gfsw 0 if checked ow 1)
+    repa(30,0);
+ else
+    repa(30,1);
+ repa(31,document.m1.elements[31].value);
+ repa(32,document.m1.elements[32].value);
+ repa(33,document.m1.elements[33].value);
+
+ repa(634,document.m1.elements[34].value);
+ repa(635,document.m1.elements[35].value);
+ repa(636,document.m1.elements[36].value);
+
+ roffset=3;
+
+ repa(34,document.m1.elements[34+roffset].value);
+ repa(35,document.m1.elements[35+roffset].value);
+ repa(36,document.m1.elements[36+roffset].value);
+
+ if(document.m1.elements[37+roffset].checked)
+    repa(37,0);
+ else
+    repa(37,1);
+ if(document.m1.elements[38+roffset].checked)
+    repa(38,0);
+ else
+    repa(38,1);
+ if(document.m1.elements[39+roffset].checked)
+    repa(39,0);
+ else
+    repa(39,1);
+ repa(40,document.m1.elements[40+roffset].value);
+ repa(41,document.m1.elements[41+roffset].value);
+ repa(42,document.m1.elements[42+roffset].value);
+ repa(43,document.m1.elements[43+roffset].value);
+ repa(44,document.m1.elements[44+roffset].value);
+ repa(45,document.m1.elements[45+roffset].value);
+ if(document.m1.elements[46+roffset].checked)
+    repa(46,0);
+ else
+    repa(46,1);
+ if(document.m1.elements[47+roffset].checked)
+    repa(47,0);
+ else
+    repa(47,1);
+ if(document.m1.elements[48+roffset].checked)
+    repa(48,0);
+ else
+    repa(48,1);
+ repa(50,document.m1.elements[50+roffset].value);
+ repa(51,document.m1.elements[51+roffset].value);
+ repa(52,document.m1.elements[52+roffset].value);
+ repa(53,document.m1.elements[53+roffset].value);
+ repa(54,document.m1.elements[54+roffset].value);
+ if(document.m1.elements[55+roffset].checked)
+    repa(55,0);
+ else
+    repa(55,1);
+ if(document.m1.elements[56+roffset].checked)
+    repa(56,0);
+ else
+    repa(56,1);
+ if(document.m1.elements[57+roffset].checked)
+    repa(57,0);
+ else
+    repa(57,1);
+
+
+ if (document.getElementById("gvbt0").checked)
+      {
+       repa(58,1);
+       repa(59,"none");
+      }
+ else
+      repa(58,0);
+ if (document.getElementById("gvbt1").checked)
+      repa(59,"inset");
+ if (document.getElementById("gvbt2").checked)
+      repa(59,"outset");
+ if (document.getElementById("gvbt3").checked)
+      repa(59,"solid");
+
+
+if (document.getElementById("gvbt1").checked)
+      repa(58,"inset");
+ if (document.getElementById("gvbt2").checked)
+      repa(58,"outset");
+ if (document.getElementById("gvbt3").checked)
+      repa(58,"solid");
+ repa(63,document.m1.elements[63+roffset].value);
+ repa(65,document.m1.elements[65+roffset].value);
+ repa(66,document.m1.elements[66+roffset].value);
+ repa(67,document.m1.elements[67+roffset].value);
+ repa(68,document.m1.elements[68+roffset].value);
+ repa(69,document.m1.elements[69+roffset].value);
+ repa(70,document.m1.elements[70+roffset].value);
+ repa(71,document.m1.elements[71+roffset].value);
+ repa(72,document.m1.elements[72+roffset].value);
+ repa(73,document.m1.elements[73+roffset].value);
+ repa(74,document.m1.elements[74+roffset].value);
+ repa(76,document.m1.elements[76+roffset].value);
+ repa(79,document.m1.elements[79+roffset].value);
+ repa(82,document.m1.elements[82+roffset].value);
+ repa(86,document.m1.elements[86+roffset].value)
+ if (document.getElementById("gncp").checked)
+      repa(84,1);
+ else
+      repa(84,0);
+ repa(92,document.m1.elements[92+roffset].value);
+ repa(95,document.m1.elements[95+roffset].value);
+ repa(98,document.m1.elements[98+roffset].value);
+ repa(100,document.m1.elements[100+roffset].value);
+ repa(101,document.m1.elements[101+roffset].value);
+ repa(102,document.m1.elements[102+roffset].value);
+ repa(103,document.m1.elements[103+roffset].value);
+ repa(104,document.m1.elements[104+roffset].value);
+ repa(105,document.m1.elements[105+roffset].value);
+ if (document.m1.elements[106+roffset].checked)
+     repa(106,1);
+ else
+     repa(106,0);
+ repa(108,document.m1.elements[108+roffset].value);
+ repa(111,document.m1.elements[111+roffset].value);
+ repa(114,document.m1.elements[114+roffset].value);
+ repa(117,document.m1.elements[117+roffset].value);
+ repa(119,document.m1.elements[119+roffset].value);
+ repa(120,document.m1.elements[120+roffset].value);
+ repa(121,document.m1.elements[121+roffset].value);
+ repa(122,document.m1.elements[122+roffset].value);
+ repa(123,document.m1.elements[123+roffset].value);
+ repa(124,document.m1.elements[124+roffset].value);
+ repa(126,document.m1.elements[126+roffset].value);
+ repa(129,document.m1.elements[129+roffset].value);
+ repa(132,document.m1.elements[132+roffset].value);
+ repa(135,document.m1.elements[135+roffset].value);
+ repa(138,document.m1.elements[138+roffset].value);
+ if (document.m1.elements[140+roffset].checked)
+     repa(140,1);
+ else
+     repa(140,0);
+ if (document.m1.elements[141+roffset].checked)
+     repa(141,1);
+ else
+     repa(141,0);
+ if (document.m1.elements[142+roffset].checked)
+     repa(142,1);
+ else
+     repa(142,0);
+ if (document.m1.elements[143+roffset].checked)
+     repa(143,1);
+ else
+     repa(143,0);
+ if (document.m1.elements[144+roffset].checked)
+     repa(144,1);
+ else
+     repa(144,0);
+ if (document.m1.elements[145+roffset].checked)
+     repa(145,1);
+ else
+     repa(145,0);
+ if (document.m1.elements[146+roffset].checked)
+     repa(146,1);
+ else
+     repa(146,0);
+ if (document.m1.elements[147+roffset].checked)
+     repa(147,1);
+ else
+     repa(147,0);
+ repa(149,document.m1.elements[149+roffset].value);
+ if (document.m1.elements[151+roffset].checked)
+     repa(151,1);
+ else
+     repa(151,0);
+ repa(153,document.m1.elements[153+roffset].value);
+ repa(156,document.m1.elements[156+roffset].value);
+ repa(158,document.m1.elements[158+roffset].value);
+ repa(159,document.m1.elements[159+roffset].value);
+ repa(160,document.m1.elements[160+roffset].value);
+ repa(161,document.m1.elements[161+roffset].value);
+ repa(162,document.m1.elements[162+roffset].value);
+ repa(163,document.m1.elements[163+roffset].value);
+ repa(164,document.m1.elements[164+roffset].value);
+ repa(165,document.m1.elements[165+roffset].value);
+ repa(166,document.m1.elements[166+roffset].value);
+ repa(167,document.m1.elements[167+roffset].value);
+ repa(168,document.m1.elements[168+roffset].value);
+ repa(169,document.m1.elements[169+roffset].value);
+ repa(170,document.m1.elements[170+roffset].value);
+ repa(171,document.m1.elements[171+roffset].value);
+ repa(172,document.m1.elements[172+roffset].value);
+ //repa(173,document.m1.elements[173+roffset].value);
+   
+ repa(200,document.m1.elements[4].value+"_el");
+ repa(201,document.m1.elements[4].value+"_g");
+ repa(202,document.m1.elements[4].value+"_canvas");
+ repa(203,document.m1.elements[4].value+"_gover_div");
+ repa(204,document.m1.elements[4].value+"_test_div");
+ repa(205,document.m1.elements[4].value+"_text1_div");
+ repa(206,document.m1.elements[4].value+"_text2_div");
+ repa(207,document.m1.elements[4].value+"_display_div");
+ repa(301,document.getElementById("ct1").innerHTML);
+ repa(302,document.getElementById("ct2").innerHTML);
+ repa(303,document.getElementById("ct3").innerHTML);
+ repa(304,document.getElementById("cl1").innerHTML);
+ repa(305,document.getElementById("cl2").innerHTML);
+ repa(306,document.getElementById("cl3").innerHTML);
+ sv=(parseInt(document.m1.aend.value)-parseInt(document.m1.astart.value))*19/(parseInt(document.m1.aend.value)-parseInt(document.m1.astart.value));
+ repa (400,sv);
+ document.m1.ta2.value=tempos;
+ }
+window.onmousemove=function(event)
+{
+ ev = event || window.event;
+// document.getElementById("mout").innerHTML = "mouse top="+ev.pageY + " move left="+ ev.pageX + "px browser="+navigator.appCodeName;
+// document.getElementById("mout").innerHTML=document.getElementById("mout").innerHTML+txt;
+}
+</script>
+</head>
+<body onload="go()"><form name="m1">
+<canvas id="cur_canvas" style="z-index: 10; position: absolute; left: 720px; top: 295px; margin: 0px;" width="300" height="340">CANVAS NOT SUPPORTED</canvas>
+<div id="gover" style="z-index: 20; position: absolute; left: 719px; top: 294px; margin: 0px; width: 300px; height: 340px; border-style: solid; border-width: 1px; border-color: rgb(255, 255, 255);">
+ <div id="disp_span" style="position: absolute; left: 121px; top: 236px; font-family: &quot;Comic Sans MS&quot;; font-size: 16px; height: 20.8px; line-height: 20.8px; font-weight: bold; font-style: normal; text-decoration: none; width: 47px; padding-right: 8px; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0); text-align: right; border-style: inset; border-width: 2px; border-color: rgb(128, 128, 128);">591</div>
+ <div id="t1span" style="position: absolute; left: 126px; top: 120px; font-family: &quot;Comic Sans MS&quot;; font-size: 16px; font-weight: bold; font-style: normal; text-decoration: none; color: rgb(64, 64, 255);"><nobr>CRWC </nobr></div>
+ <div id="t2span" style="position: absolute; left: 112px; top: 192px; font-family: &quot;Comic Sans MS&quot;; font-size: 16px; font-weight: bold; font-style: normal; text-decoration: none; color: rgb(64, 64, 255);"><nobr>Usage Lv</nobr></div>
+</div>
+<table id="bigt" cellspacing="0" cellpadding="0" bgcolor="#dddddd" style="z-index: 2; border: 1px solid black; width: 1060px;">
+<tbody><tr>
+<td colspan="4" id="col4" style="width:680px;"><img align="left" src="./make_gage2_files/captsm.gif" alt="Capt. Webb">
+<p></p><center><span style="font-size:18px;text-align:center"><b>Capt. Webb Gauge Maker<br>Using HTML 5 and Canvas</b></span><b><br>
+<span style="font-size:14px;text-align:center"><b>Version 2.1 <a href="mailto:parks@uh.edu">parks@uh.edu</a></b></span><b>
+</b></b></center></td>
+<td class="big" id="lastcol" rowspan="11" style="width: 380px;" valign="top">
+<div style="padding:3px;font-size:13px;"> <center><span style="font-size:20px;"><b>Current Gauge View</b></span></center>
+Your can perform fine adjustments of the location of:<br>
+&nbsp;&nbsp;&nbsp;•&nbsp;the primary text (<span id="i1"><nobr>CRWC </nobr></span>);<br>
+&nbsp;&nbsp;&nbsp;•&nbsp;the secondary text (<span id="i2"><nobr>Usage Lv</nobr></span> );<br>
+&nbsp;&nbsp;&nbsp;•&nbsp;the display value (<span id="i3">591</span> ).<br>
+by dragging and dropping them anywhere:<br>
+&nbsp;&nbsp;&nbsp;•&nbsp;inside the circular gauge<br>
+&nbsp;&nbsp;&nbsp;&nbsp;OR<br>
+&nbsp;&nbsp;&nbsp;•&nbsp;inside the rectangular gauge field
+<p>
+When you click the "MAKE" button, the HTML and javascript for the gauge will appear in the textarea below.
+</p></div>
+<div id="test_slider" style="width: 300px; position: absolute; border: 1px solid black; top: 655px; left: 720px; margin: 0px;"><center><b>Test The Display Value:</b><br>
+<nobr><span id="mintest">0&nbsp;</span>
+&nbsp;<input class="porm" type="button" value="-" onclick="inctv(0)">
+<input class="sld" id="usg" name="usg" style="width:100px;" type="range" min="0" max="2500" step="1" value="19" onchange="set_gauge()">
+&nbsp;<input class="porm" type="button" value="+" onclick="inctv(1)"><span id="maxtest">&nbsp;2500</span></nobr><br>
+<input type="button" value="MAKE" onclick="mg()"><span id="mout"></span></center>
+</div>
+</td></tr>
+<tr>
+<td colspan="3" rowspan="2" class="big" valign="top">
+&nbsp;<b>Gauge Name:</b>  <input class="etext" type="text" maxlength="10" size="10" name="gname" value="my1stgauge"> (for the javascript function)<br>
+&nbsp;<b>Gauge Face Radius: <input class="etext" type="text" maxlength="3" size="3" name="rd" value="120">&nbsp;Scale and Tick Radius</b> <input class="etext" type="text" maxlength="3" size="3" name="rd2" value="100"> <br>
+&nbsp;<b>Start Value:</b>&nbsp;&nbsp;&nbsp;&nbsp; <input type="text" size="6" name="astart" value="0">&nbsp;<b>End Value:</b>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" size="6" name="aend" value="100">
+<br>&nbsp;&nbsp;&nbsp;(use decimal points and zeroes to specify scale precision)
+<br>&nbsp;<b>Start Location</b> <input type="text" size="5" name="s_time" value="7:30">&nbsp;&nbsp;<b>End Location</b>
+<input type="text" size="5" name="e_time" value="4:30"><br>&nbsp;&nbsp;&nbsp;(use a time HH:MM to locate as if it were a clock face)
+<br>
+&nbsp;Move <u>from</u> Start Value <u>to</u> End Value in a:<br>
+&nbsp;&nbsp;<input type="radio" name="cw" id="cw" value="0" checked=""> <b>Clockwise</b> OR <input type="radio" name="cw" id="ccw" value="1"> <b>Counter-Clockwise</b> direction
+<div id="tpick" style="display:none;width:500px;border:solid darkgray 1px;"></div>
+</td>
+<td colspan="1" align="center"><b>Gauge Face Background Color #1</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="gbcr1" min="0" max="100" step="1" value="100"></td><td style="text-align:right;width:30px;"><span id="gbcr1o">100</span></td><td rowspan="3"><div id="bg1div" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(255, 255, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gbcg1" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gbcg1o">100</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gbcb1" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gbcb1o">100</span></td></tr>
+</tbody></table>
+</td>
+</tr>
+<tr>
+<td colspan="1" align="center"><b>Gauge Face Background Color #2</b><br><input type="checkbox" name="bgradsw" checked=""> Radial Gradient -- #1 &#8594; #2
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="gbcr2" min="0" max="100" step="1" value="75"></td><td style="text-align:right;width:30px;"><span id="gbcr2o">75</span></td><td rowspan="3"><div id="bg2div" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(192, 192, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gbcg2" min="0" max="100" step="1" value="75" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gbcg2o">75</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gbcb2" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gbcb2o">100</span></td></tr>
+</tbody></table>
+</td>
+</tr>
+<tr><td colspan="3" class="big" valign="top">
+&nbsp;<b>Gauge Numeric Scale Text:</b>
+<br>&nbsp;
+Font:<select name="gsfont" onclick="if (running) stop_make();else start_make();">
+<option value="Trebuchet MS">Trebuchet MS
+</option><option value="Times New Roman">Times New Roman
+</option><option value="Comic Sans MS" selected="">Comic Sans MS
+</option><option value="Arial">Arial
+</option><option value="Verdana">Verdana
+</option></select>
+&nbsp;FontSize: &nbsp;<select name="gsfonts" onclick="if (running) stop_make();else start_make();" onblur="start_make();">
+<option value="10">10
+</option><option value="12">12
+</option><option value="14" selected="">14
+</option><option value="16">16
+</option><option value="18">18
+</option><option value="20">20
+</option><option value="22">22
+</option><option value="24">24
+</option><option value="26">26
+</option><option value="28">28
+</option><option value="30">30
+</option><option value="36">36
+</option><option value="40">40
+</option><option value="48">48
+</option></select>&nbsp;<input type="checkbox" name="gsb" checked=""> Bold
+</td>
+<td colspan="1" align="center"><b>Gauge Numeric Scale Text Color</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="gscr" min="0" max="100" step="1" value="0"></td><td style="text-align:right;width:30px;"><span id="gscro">0</span></td><td rowspan="3"><div id="gsco" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(0, 0, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gscg" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gscgo">0</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gscb" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gscbo">0</span></td></tr>
+</tbody></table>
+</td>
+</tr>
+<tr><td colspan="3" class="big" valign="top">&nbsp;<b>Gauge Field (the rectangle): Width: <input class="etext" type="text" maxlength="3" size="3" name="wsz" value="300"> Height: <input class="etext" type="text" maxlength="3" size="3" name="hsz" value="340"></b><br>
+&nbsp;Border style: <select name="bstyle" onclick="if (running) stop_make();else start_make();">
+<option value="none">none
+</option><option value="solid" selected="">solid
+</option><option value="inset">inset
+</option><option value="outset">outset
+</option></select>
+&nbsp;Border Width: <select name="bwidth" onclick="if (running) stop_make();else start_make();">
+<option value="0">0
+</option><option value="1" selected="">1
+</option><option value="2">2
+</option><option value="3">3
+</option><option value="4">4
+</option><option value="5">5
+</option><option value="6">6
+</option><option value="7">7
+</option><option value="8">8
+</option><option value="9">9
+</option><option value="10">10
+</option></select>
+<br>
+&nbsp;Gauge and Gauge Field Horizontal Center: <span id="xcout">150</span>px<br>
+&nbsp;Gauge and Gauge Field Vertical Center: <span id="ycout">170</span>px
+</td>
+<td colspan="1" align="center"><b>Gauge Field Color OR <input type="checkbox" id="gfchk" checked=""> Transparent</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="gfcr" min="0" max="100" step="1" value="100"></td><td style="text-align:right;width:30px;"><span id="gfcro">100</span></td><td rowspan="3"><div id="gfco" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(255, 255, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gfcg" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gfcgo">100</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gfcb" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gfcbo">100</span></td></tr>
+</tbody></table>
+<b>Gauge Field Border Color</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="gfbcr" min="0" max="100" step="1" value="100"></td><td style="text-align:right;width:30px;"><span id="gfbcro"></span></td><td rowspan="3"><div id="gfbco" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(255, 255, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gfbcg" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gfbcgo"></span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gfbcb" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="gfbcbo"></span></td></tr>
+</tbody></table>
+</td>
+</tr>
+<tr><td colspan="3" class="big" valign="top">&nbsp;<b>&nbsp;Primary Title Text:</b>&nbsp;<input class="etext" type="text" maxlength="60" size="30" name="t1" id="t1" value="Grog Supply"><br>&nbsp;
+Font:&nbsp;
+<select name="font1" onclick="if (running) stop_make();else start_make();">
+<option value="Trebuchet MS">Trebuchet MS
+</option><option value="Times New Roman">Times New Roman
+</option><option value="Comic Sans MS" selected="">Comic Sans MS
+</option><option value="Arial">Arial
+</option><option value="Verdana">Verdana
+</option></select>
+&nbsp;FontSize: &nbsp;<select name="font1s" onclick="if (running) stop_make();else start_make();">
+<option value="10">10
+</option><option value="12">12
+</option><option value="14">14
+</option><option value="16" selected="">16
+</option><option value="18">18
+</option><option value="20">20
+</option><option value="22">22
+</option><option value="24">24
+</option><option value="26">26
+</option><option value="28">28
+</option><option value="30">30
+</option><option value="36">36
+</option><option value="40">40
+</option><option value="48">48
+</option></select><br>
+&nbsp;<input type="checkbox" name="cbbp" checked=""> Bold
+&nbsp;<input type="checkbox" name="cbip"> Italic
+&nbsp;<input type="checkbox" name="cbup"> Underline<br>
+&nbsp;Drag &amp; Drop to adjust location (top: <span id="ct1">120px</span> left: <span id="cl1">126px</span>)
+</td>
+<td colspan="1" align="center"><b>Primary Title Color</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="pr" min="0" max="100" step="1" value="25"></td><td style="text-align:right;width:30px;"><span id="pro">25</span></td><td rowspan="3"><div id="pdiv" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(64, 64, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="pg" min="0" max="100" step="1" value="25" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="pgo">25</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="pb" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="pbo">100</span></td></tr>
+</tbody></table>
+</td></tr>
+<tr><td colspan="3" class="big" valign="top">&nbsp;<b>Secondary Title Text:</b>&nbsp;<input class="etext" type="text" maxlength="60" size="30" id="t2" name="t2" value="Casks">
+<br>
+&nbsp;Font:&nbsp;<select name="font2" onclick="if (running) stop_make();else start_make();">
+<option value="Trebuchet MS">Trebuchet MS
+</option><option value="Times New Roman">Times New Roman
+</option><option value="Comic Sans MS" selected="">Comic Sans MS
+</option><option value="Arial">Arial
+</option><option value="Verdana">Verdana
+</option></select>
+&nbsp;FontSize: &nbsp;<select name="font2s" onclick="if (running) stop_make();else start_make();">
+<option value="10">10
+</option><option value="12">12
+</option><option value="14">14
+</option><option value="16" selected="">16
+</option><option value="18">18
+</option><option value="20">20
+</option><option value="22">22
+</option><option value="24">24
+</option><option value="26">26
+</option><option value="28">28
+</option><option value="30">30
+</option><option value="36">36
+</option><option value="40">40
+</option><option value="48">48
+</option></select>
+<br>&nbsp;<input type="checkbox" name="cbbs" checked=""> Bold
+&nbsp;<input type="checkbox" name="cbis"> Italic
+&nbsp;<input type="checkbox" name="cbus"> Underline
+<br>&nbsp;Drag &amp; Drop to adjust location (top: <span id="ct2">192px</span> left: <span id="cl2">112px</span>)
+</td>
+<td colspan="1" align="center"><b>Secondary Title Color </b>(<input type="checkbox" name="cb1"> same as above)<br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="sr" min="0" max="100" step="1" value="25" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sro">25</span></td><td rowspan="3"><div id="sdiv" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(64, 64, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="sg" min="0" max="100" step="1" value="25" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sgo">25</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="sb" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sbo">100</span></td></tr>
+</tbody></table>
+</td></tr>
+<tr><td valign="top" colspan="3" class="big">&nbsp;<b>Gauge Value Display:</b>
+<p>
+&nbsp;Font:&nbsp;<select name="font3" onclick="if (running) stop_make();else start_make();">
+<option value="Trebuchet MS">Trebuchet MS
+</option><option value="Times New Roman">Times New Roman
+</option><option value="Comic Sans MS" selected="">Comic Sans MS
+</option><option value="Arial">Arial
+</option><option value="Verdana">Verdana
+</option></select>
+&nbsp;Font Size (px): &nbsp;<select name="font3s" onclick="if (running) stop_make();else start_make();">
+<option value="10">10
+</option><option value="12">12
+</option><option value="14">14
+</option><option value="16" selected="">16
+</option><option value="18">18
+</option><option value="20">20
+</option><option value="22">22
+</option><option value="24">24
+</option><option value="26">26
+</option><option value="28">28
+</option><option value="30">30
+</option><option value="36">36
+</option><option value="40">40
+</option><option value="48">48
+</option></select>
+<br>&nbsp;<input type="checkbox" name="cbbd" checked=""> Bold
+&nbsp;<input type="checkbox" name="cbid"> Italic
+&nbsp;<input type="checkbox" name="cbud"> Underline<br>&nbsp;Border-Type:&nbsp;<input type="radio" name="gvbt" id="gvbt0"> none
+&nbsp;<input type="radio" name="gvbt" id="gvbt1" checked=""> inset
+&nbsp;<input type="radio" name="gvbt" id="gvbt2"> outset
+&nbsp;<input type="radio" name="gvbt" id="gvbt3"> solid
+<br>&nbsp;Border-Width:&nbsp;
+<span id="gvbwo">2</span>&nbsp;<input class="porm" type="button" value="-" onclick="incgvbw(0)"><input class="sld" type="range" id="gvbw" min="0" max="10" step="1" value="2" style="width:100px;"><input class="porm" type="button" value="+" onclick="incgvbw(1)">
+<br>&nbsp;Digits to the right of the decimal: <select name="dig" id="dig" onclick="if (running) stop_make();else start_make();">
+<option value="0" selected="">0
+</option><option value="1">1
+</option><option value="2">2
+</option><option value="3">3
+</option><option value="4">4
+</option><option value="5">5
+</option></select>
+<br>&nbsp;Drag &amp; Drop to adjust location (top: <span id="ct3">236px</span> left: <span id="cl3">121px</span>)
+</p></td>
+<td colspan="1" align="center"><b>Gauge Value Display Color</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="d1r" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d1o">100</span></td><td rowspan="3"><div id="d1c" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(255, 255, 255);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="d1g" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d2o">100</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="d1b" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d3o">100</span></td></tr>
+</tbody></table>
+<b>Gauge Value Display Background Color</b>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="d2r" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d4o">0</span></td><td rowspan="3"><div id="d2c" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(0, 0, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="d2g" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d5o">0</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="d2b" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d6o">0</span></td></tr>
+</tbody></table>
+<b>Gauge Value Border Color</b>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="d3r" min="0" max="100" step="1" value="50" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d7o">50</span></td><td rowspan="3"><div id="d3c" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(128, 128, 128);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="d3g" min="0" max="100" step="1" value="50" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d8o">50</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="d3b" min="0" max="100" step="1" value="50" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="d9o">50</span></td></tr>
+</tbody></table>
+</td></tr>
+<tr><td valign="top" colspan="3" class="big">&nbsp;<b>Gauge Needle and Cap:</b>
+<center><table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Pointed Length</td>       <td align="right"><span id="gn1o">85</span></td><td><input class="porm" type="button" value="-" onclick="incgn1(0)"><input class="sld" type="range" id="gn1" min="0" max="100" step="1" value="85" style="width:100px;"><input class="porm" type="button" value="+" onclick="incgn1(1)"></td></tr>
+<tr><td>&nbsp;Blunt Length</td>         <td align="right"><span id="gn2o">21</span></td><td><input class="porm" type="button" value="-" onclick="incgn2(0)"><input class="sld" type="range" id="gn2" min="0" max="100" step="1" value="21" style="width:100px;"><input class="porm" type="button" value="+" onclick="incgn2(1)"></td></tr>
+<tr><td>&nbsp;Blunt Width </td><td align="right"><span id="gn3o">10</span></td><td><input class="porm" type="button" value="-" onclick="incgn3(0)"><input class="sld" type="range" id="gn3" min="0" max="100" step="1" value="10" style="width:100px;"><input class="porm" type="button" value="+" onclick="incgn3(1)"></td></tr>
+<tr><td>&nbsp;Cap Radius (<input type="checkbox" name="gncp" id="gncp"> no cap)</td>  <td align="right"><span id="gn4o">15</span></td><td><input class="porm" type="button" value="-" onclick="incgn4(0)"><input class="sld" type="range" id="gn4" min="0" max="100" step="1" value="15" style="width:100px;"><input class="porm" type="button" value="+" onclick="incgn4(1)"></td></tr>
+<tr><td>&nbsp;ShadowColor (% black)           </td><td align="right"><span id="gn5o">0</span></td><td><input class="porm" type="button" value="-" onclick="incgn5(0)"><input class="sld" type="range" id="gn5" min="0" max="75" step="1" value="0" style="width:50px;"><input class="porm" type="button" value="+" onclick="incgn5(1)"></td></tr>
+<tr><td>&nbsp;ShadowOffsetX;</td><td align="right"><span id="gn6o">3</span></td><td><input class="porm" type="button" value="-" onclick="incgn6(0)"><input class="sld" type="range" id="gn6" min="0" max="10" step="1" value="3" style="width:50px;"><input class="porm" type="button" value="+" onclick="incgn6(1)"></td></tr>
+<tr><td>&nbsp;ShadowOffsetY;</td><td align="right"><span id="gn7o">3</span></td><td><input class="porm" type="button" value="-" onclick="incgn7(0)"><input class="sld" type="range" id="gn7" min="0" max="10" step="1" value="3" style="width:50px;"><input class="porm" type="button" value="+" onclick="incgn7(1)"></td></tr>
+<tr><td>&nbsp;ShadowBlur;</td><td align="right"><span id="gn8o">3</span></td><td><input class="porm" type="button" value="-" onclick="incgn8(0)"><input class="sld" type="range" id="gn8" min="0" max="10" step="1" value="3" style="width:50px;"><input class="porm" type="button" value="+" onclick="incgn8(1)"></td></tr>
+</tbody></table></center>
+</td>
+<td colspan="1" align="center"><b>Gauge Needle Color</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="gnr" min="0" max="100" step="1" value="90" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="n1o">90</span></td><td rowspan="3"><div id="gnc" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(230, 0, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gng" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="n2o">0</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gnb" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="n3o">0</span></td></tr>
+</tbody></table>
+<b>Gauge Cap Color</b>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td><td>&nbsp;<input class="sld" type="range" id="gcr" min="0" max="100" step="1" value="90" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="n4o">90</span></td><td rowspan="3"><div id="gcc" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(230, 0, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="gcg" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="n5o">0</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="gcb" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="n6o">0</span></td></tr>
+</tbody></table>
+</td></tr>
+<tr><td valign="top" colspan="3" class="big">&nbsp;<b>Bezel: <input type="checkbox" name="nobz"> No Bezel </b>
+<center><table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Bezel Width </td><td align="right"><span id="bz3o">10</span></td><td><input class="porm" type="button" value="-" onclick="incbz3(0)"><input class="sld" type="range" id="bz3" name="bz3" min="0" max="100" step="1" value="10" style="width:100px;"><input class="porm" type="button" value="+" onclick="incbz3(1)"></td></tr>
+<tr><td>&nbsp;ShadowOffsetX;</td><td align="right"><span id="bz6o">3</span></td><td><input class="porm" type="button" value="-" onclick="incbz6(0)"><input class="sld" type="range" id="bz6" min="0" max="10" step="1" value="3" style="width:50px;"><input class="porm" type="button" value="+" onclick="incbz6(1)"></td></tr>
+<tr><td>&nbsp;ShadowOffsetY;</td><td align="right"><span id="bz7o">3</span></td><td><input class="porm" type="button" value="-" onclick="incbz7(0)"><input class="sld" type="range" id="bz7" name="bz7" min="0" max="10" step="1" value="3" style="width:50px;"><input class="porm" type="button" value="+" onclick="incbz7(1)"></td></tr>
+<tr><td>&nbsp;ShadowBlur;</td><td align="right"><span id="bz8o">3</span></td><td><input class="porm" type="button" value="-" onclick="incbz8(0)"><input class="sld" type="range" id="bz8" name="bz8" min="0" max="10" step="1" value="3" style="width:50px;"><input class="porm" type="button" value="+" onclick="incbz8(1)"></td></tr>
+</tbody></table></center><span style="font-size:12px;">
+To get a simple solid color border:
+<br>(a) uncheck "No Bezel"
+<br>(b) set all three shadow attribute values to 0;
+<br>(c) set the two colors to the <u>same</u> color values; and
+<br>(d) set "Bezel Width" to the desired border width</span>
+</td>
+<td colspan="1" align="center"><b>Bezel Light Color</b> (NorthWest)<br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="bzr1" name="bzr1" min="0" max="100" step="1" value="25" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="bzr1o">25</span></td><td rowspan="3"><div id="bz1c" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(64, 64, 192);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="bzg1" name="bzg1" min="0" max="100" step="1" value="25" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="bzg1o">25</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="bzb1" name="bzb1" min="0" max="100" step="1" value="75" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="bzb1o">75</span></td></tr>
+</tbody></table>
+<b>Bezel Dark Color</b> (SouthEast)<br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="bzr2" name="bzr2" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="bzr2o">0</span></td><td rowspan="3"><div id="bz2c" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(0, 0, 192);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="bzg2" name="bzg2" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="bzg2o">0</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="bzb2" name="bzb2" min="0" max="100" step="1" value="75" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="bzb2o">75</span></td></tr>
+</tbody></table>
+</td></tr>
+<tr><td valign="top" colspan="3" class="big">&nbsp;<b>Scales and Tick Marks</b>
+<center>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr>
+<td>&nbsp;Scale Arc Width</td>
+<td align="right">&nbsp;<span id="scrwo">4</span>&nbsp;</td>
+<td><nobr><input class="porm" type="button" value="-" onclick="scr(0)"><input class="sld" type="range" id="scrw" name="scrw" min="0" max="15" step="1" value="4" style="width:30px;"><input class="porm" type="button" value="+" onclick="scr(1)"> (0 to 15 pixels)</nobr></td>
+</tr>
+<tr>
+<td rowspan="2">&nbsp;Major Ticks</td>
+<td align="right">&nbsp;<span id="majt_out">5</span>&nbsp;</td>
+<td><input class="porm" type="button" value="-" onclick="incmajt(0)"><input class="ticksld" type="range" name="majt" min="0" max="36" step="1" value="5"><input class="porm" type="button" value="+" onclick="incmajt(1)"><span id="majt_out2"> Subdivisions (0 &#8594; 36)</span></td>
+</tr>
+<tr>
+<td align="right">&nbsp;<span id="majtlen_out">8</span>&nbsp;</td>
+<td><input class="porm" type="button" value="-" onclick="incmajtlen(0)"><input class="ticksld" type="range" name="majtlen" min="0" max="40" step="1" value="8"><input class="porm" type="button" value="+" onclick="incmajtlen(1)"><span id="majtlen_out2"> Length in pixels (0 &#8594; 40)</span></td>
+</tr>
+<tr>
+<td rowspan="2">&nbsp;Minor Ticks</td>
+<td align="right">&nbsp;<span id="mint_out">4</span>&nbsp;</td>
+<td><input class="porm" type="button" value="-" onclick="incmint(0)"><input class="ticksld" type="range" name="mint" min="0" max="10" step="1" value="4"><input class="porm" type="button" value="+" onclick="incmint(1)"><span id="mint_out2"> Subdivisions (0 &#8594; 10)</span></td>
+</tr>
+<tr>
+<td align="right">&nbsp;<span id="mintlen_out">4</span>&nbsp;</td>
+<td><input class="porm" type="button" value="-" onclick="incmintlen(0)"><input class="ticksld" type="range" name="mintlen" min="0" max="20" step="1" value="4"><input class="porm" type="button" value="+" onclick="incmintlen(1)"><span id="mintlen_out2"> Length in Pixels (0 &#8594; 20)</span></td>
+</tr>
+<tr>
+<td>&nbsp;Tick Color</td>
+<td colspan="2">
+&nbsp;<input type="radio" name="tc" id="tc1" value="1" checked=""> Black
+&nbsp;<input type="radio" name="tc" id="tc2" value="2"> White
+&nbsp;<input type="radio" name="tc" id="tc3" value="3"> Use Arc Color(s) below
+</td>
+</tr>
+<tr>
+<td><input type="radio" name="scnum" id="scnum1" value="1"> 1 Arc Color</td>
+<td colspan="2">
+<input type="radio" name="scnum1" id="scnum11" value="1" checked=""> Black
+<input type="radio" name="scnum1" id="scnum12" value="2"> White
+<input type="radio" name="scnum1" id="scnum13" value="3"> Use Scale Arc Color 1</td>
+</tr>
+<tr>
+<td colspan="1"><input type="radio" name="scnum" id="scnum2" value="2"> 2 Arc Colors</td>
+<td colspan="2">
+<center>
+<table border="1">
+<tbody><tr>
+<td align="right"><span id="sc2start">0</span></td>
+<td align="left">&nbsp;&#8592; Scale Color 1 &#8594;</td>
+<td align="center"><span id="sc2a">602</span></td>
+<td align="right">&nbsp;&#8592; Scale Color 2&#8594;</td>
+<td align="right"><span id="sc2end">2500</span></td>
+</tr>
+<tr>
+<td><input class="porm" type="button" value="-" onclick="inctwoc(0)"></td>
+<td colspan="3" align="center"><input class="ticksld" type="range" name="twoc" min="0" max="2500" step="1" value="150" style="width:200px;"></td>
+<td><input class="porm" type="button" value="+" onclick="inctwoc(1)"></td>
+
+</tr>
+</tbody></table>
+</center>
+</td>
+</tr>
+<tr>
+<td colspan="1"><input type="radio" name="scnum" id="scnum3" value="3" checked=""> 3 Arc Colors</td>
+<td colspan="2">
+<center>
+<table border="1">
+<tbody><tr>
+<td><span id="sc3start">0</span></td>
+<td align="left">&nbsp;&#8592; Scale Color 1 &#8594;</td>
+<td><span id="sc3ao1">741</span></td>
+<td align="right">&nbsp;&#8592; Scale Color 2&#8594;</td>
+<td><span id="sc3bo1">1641</span></td>
+</tr>
+<tr>
+<td><input class="porm" type="button" value="-" onclick="incthreec1(0)"></td>
+<td colspan="3" align="center"><input class="ticksld" type="range" name="sc31" min="1" max="1641" step="1" value="10" style="width:200px;"></td>
+<td><input class="porm" type="button" value="+" onclick="incthreec1(1)"></td>
+
+</tr>
+<tr>
+<td><span id="sc3ao2">741</span></td>
+<td align="left">&nbsp;&#8592; Scale Color 2 &#8594;</td>
+<td><span id="sc3bo2">1641</span></td>
+<td align="right">&nbsp;&#8592; Scale Color 3&#8594;</td>
+<td><span id="sc3end">2500</span></td>
+</tr>
+<tr>
+<td><input class="porm" type="button" value="-" onclick="incthreec2(0)"></td>
+<td colspan="3" align="center"><input class="ticksld" type="range" name="sc32" min="741" max="2499" step="1" value="20" style="width:200px;"></td>
+<td><input class="porm" type="button" value="+" onclick="incthreec2(1)"></td>
+
+</tr>
+ </tbody></table>
+ </center>
+</td>
+</tr>
+</tbody></table>
+&nbsp;
+</center></td>
+<td colspan="1" align="center"><b>Scale Arc Color 1</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="sc1r" name="sc1r" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc1ro">0</span></td><td rowspan="3"><div id="sc1" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(0, 255, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="sc1g" name="sc1g" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc1go">100</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="sc1b" name="sc1b" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc1bo">0</span></td></tr>
+</tbody></table>
+<b>Scale Arc Color 2</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="sc2r" name="sc2r" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc2ro">100</span></td><td rowspan="3"><div id="sc2" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(255, 255, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="sc2g" name="sc2g" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc2go">100</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="sc2b" name="sc2b" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc2bo">0</span></td></tr>
+</tbody></table>
+<b>Scale Arc Color 3</b><br>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody><tr><td>&nbsp;Red  </td>
+<td>&nbsp;<input class="sld" type="range" id="sc3r" name="sc3r" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc3ro">100</span></td><td rowspan="3"><div id="sc3" style="width: 25px; height: 40px; border: 1px solid black; margin: 5px; background-color: rgb(255, 0, 0);">&nbsp;</div></td></tr>
+<tr><td>&nbsp;Green&nbsp;</td><td>&nbsp;<input class="sld" type="range" id="sc3g" name="sc3g" min="0" max="100" step="1" value="100" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc3go">0</span></td></tr>
+<tr><td>&nbsp;Blue </td><td>&nbsp;<input class="sld" type="range" id="sc3b" name="sc3b" min="0" max="100" step="1" value="0" style="width:100px;"></td><td style="text-align:right;width:30px;"><span id="sc3bo">0</span></td></tr>
+</tbody></table>
+</td></tr>
+</tbody></table>
+<input type="hidden" name="gauge_display_width" value="47">
+<input type="hidden" name="gauge_display_padding" value="8">
+<input type="hidden" name="gauge_display_line_height" value="20.8">
+<input type="hidden" name="gauge_display_height" value="20.8">
+<!--
+
+*** code template follows
+
+-->
+<textarea style="z-index: 1; background-color: rgb(204, 204, 204); position: absolute; top: 1862px; left: 10px;" id="ta2" name="ta2" rows="800" cols="129">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;!--
+Usage:
+
+When the "make" button on the make_gauge.htm page is clicked, the code creates:
+
+1. A textarea (at the bottom of the page) with both the javascript code for
+   the function you named: **4** AND html necessary for the gauge
+
+2. Opens a new tab with the HTML/javascript code for the gauge you have designed.
+   It includes a test slider to demonstrate and check the gauge's functions.
+
+The javascript uses: NO global variables and requires NO css in the HEAD.
+
+A total of 372 variable names; objects names; and parameters values are defined by the user's selections
+and used to create the executable code shown below. 
+
+To use the gauge there are TWO PARTS:
+
+1. PART 1 -- javascript
+
+   Place the single javascript function you created in the gauge maker inside the
+   your HTML pages's HEAD tags.
+
+   The function you created begins like this:
+
+   function **4**(**4**_gauge_field_left, **4**_gauge_field_top, **4**_value)
+
+   When you use the **4** function you pass the arguments:
+
+   1. The page left position (in pixels) of the upper left-hand corner of the gauge field
+      and canvas (called: **4**_gauge_field_left )
+   2. The page top  position (in pixels) of the upper left-hand corner of the gauge field
+      and canvas (called: **4**_gauge_field_top )
+   3. The value to be displayed on the gauge (called: **4**_value)
+
+   Typical usage would be:
+
+   **4**(123,11,some_value);
+
+   Where:
+      1. 123 is the left pixel position of the upper left-hand corner of the gauge's canvas and the gauge field
+      2.  11 is the top  pixel position of the upper left-hand corner of the gauge's canvas and the gauge field
+      3. the value of the variable some_value will be displayed on the gauge
+
+2. PART 2 -- the HTML
+
+   There are 5 HTML elements required for the gauge:
+
+   1. a canvas for the gauge (id="**4**_canvas")
+   2. a rectangular gauge field that contains the canvas (id="**4**_gover_div)
+
+   Both the canvas and gauge field are absolutely positioned according to the first two
+   parameters passed to the function. The default values are left=40px, top=40px.
+
+   The gauge rectangle overlays the canvas and contains three DIV blocks:
+
+   3. a DIV block for the first text field (id="**4**_text1_div")
+   4. a DIV block for the second text field (id="**4**_text1_div")
+   5. a DIV block for the gauge display value (id="**4**_display_div")
+
+   All of the DIV block locations (top and left) may be adjusted by the user.
+
+   At the bottom of the HTML portion, The test_slider DIV and all its contents should be removed after testing.
+
+--&gt;
+&lt;script language="javascript"&gt;
+&lt;!--
+function **4**(**4**_gauge_field_left,**4**_gauge_field_top,**4**_value)
+{
+  var colv = new Array(3);
+  var cab = new Array(4);
+  var swangle = new Array(4);
+  try {
+       **200** = document.getElementById("**202**"); // *** create context and canvas
+       **201** = **200**.getContext("2d");
+      }
+  catch (e)
+     {
+      alert ("HTML 5 Canvas is NOT supported by this browser");
+      return;
+     }
+ //
+ // *** get canvas size
+ //
+ fname="**4**";
+ rad=parseInt(**5**);   // *** user defined gauge overall radius
+ rad2=parseInt(**6**);  // *** user defined gauge scale radius
+ w=parseInt(**26**);    // *** user defined gauge field width
+ h=parseInt(**27**);    // *** user defined gauge field height
+ xc=w/2;
+ yc=h/2;
+//
+// *** place canvas, overlay, test slider (from paramters passing intoi this function)
+//
+document.getElementById("**202**").style.left=parseInt(**4**_gauge_field_left).toString()+"px";
+document.getElementById("**203**").style.left=parseInt(**4**_gauge_field_left).toString()+"px";
+document.getElementById("**202**").style.top=parseInt(**4**_gauge_field_top).toString()+"px";
+document.getElementById("**203**").style.top=parseInt(**4**_gauge_field_top).toString()+"px";
+document.getElementById("**204**").style.top=parseInt(**4**_gauge_field_top+h+20).toString()+"px";
+document.getElementById("**204**").style.left=parseInt(**4**_gauge_field_left).toString()+"px";
+document.getElementById("**204**").style.width=parseInt(w).toString()+"px";
+ //
+ // *** set canvas and gauge field size
+ //
+ **200**.width=w;
+ **200**.height=h;
+ document.getElementById("**203**").style.width=w.toString()+"px";
+ document.getElementById("**203**").style.height=h.toString()+"px";
+ //
+ // circular gauge face background colors -- rgb (% red, %green, % blue)
+ //
+ backgr1=**13**;
+ backgg1=**14**;
+ backgb1=**15**;
+//
+// circular gauge face background2 -- used if radial gradient chosen
+//
+ backgr2=**17**;  // ** 17 gbcr2
+ backgg2=**18**;
+ backgb2=**19**;
+//
+// *** numeric scale text colors -- rgb (% red, %green, % blue)
+//
+ rgs=**23**;
+ ggs=**24**;
+ bgs=**25**;
+//
+// *** fill gauge field rectangle with transparent
+//     fill gauge circle with background color
+//
+// **30** is transparency outcome
+// **31** is gauge field r background color if gfchk is NOT checked
+// **32** is gauge field g background color if gfchk is NOT checked
+// **33** is gauge field b background color if gfchk is NOT checked
+r1=**31**;
+g1=**32**;
+b1=**33**;
+gfsw=**30**; // switch for transparency (rgba)
+if (gfsw==0)
+   {
+     **201**.fillStyle="rgba(0,0,0,0.0)";
+     **201**.fillRect(0,0,w,h);
+   }
+else
+   {
+    **201**.fillStyle="rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+    **201**.fillRect(0,0,w,h);
+   }
+//
+// *** fill gauge with solid or radial gradient color
+//
+bgradsw=**16**;
+ if (bgradsw==0) // 16 bgradsw SWITCH (checked means radial (1), 0 = solid)
+    {
+     **201**.fillStyle="rgba("+backgr1+"%,"+backgg1+"%,"+backgb1+"%,1.0)";
+     **201**.arc(xc,yc,rad,0.0,2.0*Math.PI,false);
+     **201**.fill();
+     }
+else
+    {
+     var grbg = **201**.createRadialGradient(xc,yc,0.0,xc,yc,rad);
+     grbg.addColorStop(0.0,"rgb("+backgr1+"%,"+backgg1+"%,"+backgb1+"%)");
+     grbg.addColorStop(1.0,"rgb("+backgr2+"%,"+backgg2+"%,"+backgb2+"%)");
+     **201**.fillStyle = grbg;
+     **201**.arc(xc,yc,rad,0.0,2.0*Math.PI,false);
+     **201**.fill();
+     }
+     **201**.beginPath();
+//
+// *** set borders for gauge field  -- rgb (% red, %green, % blue)
+//
+gfbcr=**634**;
+gfbcg=**635**;
+gfbcb=**636**;
+tempfix="**29**"; // *** fix IE bug that provides an extra space in the option text string
+document.getElementById("**203**").style.border="**28**"+" "+tempfix.toString()+"px rgb("+gfbcr.toString()+"%,"+gfbcg.toString()+"%,"+gfbcb.toString()+"%)";
+//
+// *** display tit1e1 and title2 value
+//
+ document.getElementById("**205**").innerHTML="&lt;nobr&gt;**34**&lt;/nobr&gt;";
+ document.getElementById("**206**").innerHTML="&lt;nobr&gt;**43**&lt;/nobr&gt;";
+//
+// *** set font family  and size for text and gauge value display
+//
+ document.getElementById("**205**").style.fontFamily="**35**";
+ document.getElementById("**206**").style.fontFamily="**44**";
+ document.getElementById("**207**").style.fontFamily="**53**";
+ document.getElementById("**205**").style.lineHeight="**36**"+"px";
+ document.getElementById("**206**").style.lineHeight="**45**"+"px";
+ document.getElementById("**207**").style.lineHeight="**169**"+"px";
+ document.getElementById("**207**").style.Height="**170**"+"px";
+ 
+//
+// *** set bold italic underline attributes for text1, text2 and display value
+//
+cbbpsw=**37**; // *** these are bold, italic and underline options for first text
+cbipsw=**38**;
+cbupsw=**39**;
+
+cbbssw=**46**; // *** these are bold, italic and underline options for second text
+cbissw=**47**;
+cbussw=**48**;
+
+cbbdsw=**55**; // *** these are bold, italic and underline options for gauge value text
+cbidsw=**56**;
+cbudsw=**57**;
+
+if (cbbpsw==0)
+    document.getElementById("**205**").style.fontWeight="bold";
+else
+    document.getElementById("**205**").style.fontWeight="normal";
+if (cbipsw==0)
+   document.getElementById("**205**").style.fontStyle="italic";
+else
+   document.getElementById("**205**").style.fontStyle="normal";
+if (cbupsw==0)
+   document.getElementById("**205**").style.textDecoration="underline";
+else
+   document.getElementById("**205**").style.textDecoration="none";
+
+if (cbbssw==0)
+    document.getElementById("**206**").style.fontWeight="bold";
+else
+    document.getElementById("**206**").style.fontWeight="normal";
+if (cbissw==0)
+   document.getElementById("**206**").style.fontStyle="italic";
+else
+   document.getElementById("**206**").style.fontStyle="normal";
+if (cbussw==0)
+   document.getElementById("**206**").style.textDecoration="underline";
+else
+   document.getElementById("**206**").style.textDecoration="none";
+
+if (cbbdsw==0)
+    document.getElementById("**207**").style.fontWeight="bold";
+else
+    document.getElementById("**207**").style.fontWeight="normal";
+if (cbidsw==0)
+   document.getElementById("**207**").style.fontStyle="italic";
+else
+   document.getElementById("**207**").style.fontStyle="normal";
+if (cbudsw==0)
+   document.getElementById("**207**").style.textDecoration="underline";
+else
+   document.getElementById("**207**").style.textDecoration="none";
+//
+// *** font size for text and gauge value
+//
+ document.getElementById("**205**").style.fontSize="**36**"+"px";
+ document.getElementById("**206**").style.fontSize="**45**"+"px";
+ document.getElementById("**207**").style.fontSize="**54**"+"px";
+
+//
+// *** determine text widths
+//
+ **201**.font=document.getElementById("**205**").style.font;
+ tw1=**201**.measureText("**34**").width;
+ **201**.font=document.getElementById("**206**").style.font;
+ tw2=**201**.measureText("**43**").width;
+//
+// *** get start and stop values for the gauge
+//
+ disp1=**7**; // *** user defined start
+ disp2=**8**; // *** user defined stop
+//
+//***set min max values of the test slider if it exists
+//
+ if (typeof document.getElementById("**4**_range") != "undefined")
+   {
+    document.getElementById("**4**_range").max=parseInt(**8**);
+    document.getElementById("**4**_range").min=parseInt(**7**);
+    document.getElementById("**4**_min_show").innerHTML=parseInt(**7**).toString();
+    document.getElementById("**4**_max_show").innerHTML=parseInt(**8**).toString();
+   }
+
+//
+// *** locate text1, text2 and display value
+//
+document.getElementById("**205**").style.top="**301**";
+document.getElementById("**206**").style.top="**302**";
+document.getElementById("**207**").style.top="**303**";
+document.getElementById("**205**").style.left="**304**";
+document.getElementById("**206**").style.left="**305**";
+document.getElementById("**207**").style.left="**306**";
+//
+// *** get and show gauge display value
+//
+disp_val=parseFloat(**4**_value);
+disp_val=disp_val.toFixed(**65**);
+disp_val=disp_val.toString();
+ document.getElementById("**207**").style.width=parseInt(**167**).toString()+"px";
+ document.getElementById("**207**").style.paddingRight=parseInt(**168**).toString()+"px";
+ document.getElementById("**207**").innerHTML=disp_val;
+//
+// *** set colors for the two text values a -- rgb (% red, %green, % blue)
+//
+ r1=**40**;
+ g1=**41**;
+ b1=**42**;
+ document.getElementById("**205**").style.color= "rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ r2=**50**;
+ g2=**51**;
+ b2=**52**;
+ document.getElementById("**206**").style.color= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+//
+// *** set colors and attributes for the display value -- rgb (% red, %green, % blue)
+//
+ r1=**66**;
+ g1=**67**;
+ b1=**68**;
+ document.getElementById("**207**").style.color="rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ r2=**69**;
+ g2=**70**;
+ b2=**71**;
+ document.getElementById("**207**").style.backgroundColor= "rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+ r3=**72**;
+ g3=**73**;
+ b3=**74**;
+ document.getElementById("**207**").style.textAlign= "right";
+ document.getElementById("**207**").style.borderStyle="**59**";
+ document.getElementById("**207**").style.borderWidth="**63**"+"px";
+ document.getElementById("**207**").style.borderColor= "rgb("+r3+"%,"+g3+"%,"+b3+"%)";
+//
+// *** start the gauge face display
+//
+ca=-90.0;
+begclock="**9**";
+var temp=begclock.split(":");
+deg1    = parseFloat(temp[0])*30.0+parseFloat(temp[1])/2.0+ca;
+begangle=deg1*Math.PI/180.0;
+endclock="**10**";
+var temp=endclock.split(":");
+deg2    = parseFloat(temp[0])*30.0+parseFloat(temp[1])/2.0+ca;
+endangle= deg2*Math.PI/180.0;
+tickstartval=parseFloat(**7**);
+tickstopval=parseFloat(**8**);
+//
+// **** get and set the possible three scale colors -- rgb (% red, %green, % blue)
+//
+sc1r=**158**;
+sc1g=**159**;
+sc1b=**160**;
+
+sc2r=**161**;
+sc2g=**162**;
+sc2b=**163**;
+
+sc3r=**164**;
+sc3g=**165**;
+sc3b=**166**;
+scradw=**126**;
+if (deg1 &lt;= deg2)
+   dsw=1;
+else
+   dsw=0;
+//
+// *** tick marks
+//
+tm1=**129**;
+if (tm1.length&gt;0)
+    {
+     tm1=parseInt(tm1);
+     }
+tm2=**135**;
+if (tm2.length  &gt; 0)
+    {
+     tm2=parseInt(tm2);
+     }
+tm1len=**132**;
+if (tm1len.length&gt;0)
+    {
+     tm1len=parseInt(tm1len);
+     }
+tm2len=**138**;
+if (tm2len.length  &gt; 0)
+    {
+     tm2len=parseInt(tm2len);
+    }
+//
+// ***collect arc and tick color options
+//
+scnum1sw =**143**;
+scnum11sw=**144**;
+scnum12sw=**145**;
+scnum13sw=**146**;
+if (scnum1sw==1)
+   {
+    colorc=1;
+    if(scnum11sw==1) colv[0]="rgb(0%,0%,0%)";
+    if(scnum12sw==1) colv[0]="rgb(100%,100%,100%)";
+    if(scnum13sw==1) colv[0]="rgb("+sc1r.toString()+"%,"+sc1g.toString()+"%,"+sc1b.toString()+"%)";
+    cab[0]=0.0;
+    cab[1]=1.0;
+ }
+scnum2sw=**147**;
+if (scnum2sw==1)
+   {
+    colorc=2;
+    colv[0]="rgb("+sc1r.toString()+"%,"+sc1g.toString()+"%,"+sc1b.toString()+"%)";
+    colv[1]="rgb("+sc2r.toString()+"%,"+sc2g.toString()+"%,"+sc2b.toString()+"%)";
+    cab[0]=0.0;
+    cab[1]=(parseInt(**149**)-parseInt(disp1))/(parseInt(disp2)-parseInt(disp1));
+    cab[2]=1.0
+ }
+scnum3sw=**151**;
+if (scnum3sw==1)
+   {
+    colorc=3;
+    colv[0]="rgb("+sc1r.toString()+"%,"+sc1g.toString()+"%,"+sc1b.toString()+"%)";
+    colv[1]="rgb("+sc2r.toString()+"%,"+sc2g.toString()+"%,"+sc2b.toString()+"%)";
+    colv[2]="rgb("+sc3r.toString()+"%,"+sc3g.toString()+"%,"+sc3b.toString()+"%)";
+    cab[0]=0.0;
+    cab[1]=(parseInt(**153**)-parseInt(disp1))/(parseInt(disp2)-parseInt(disp1));
+    cab[2]=(parseInt(**156**)-parseInt(disp1))/(parseInt(disp2)-parseInt(disp1));
+    cab[3]=1.0
+ }
+if (begclock==endclock)
+   {
+    sweep=360;
+    tpick.innerHTML="Sweep="+sweep+" degrees deg1="+deg1+" deg2="+deg2;
+   }
+else
+   {
+    cwsw=**11**;
+    ccwsw=**12**;
+    if (cwsw==1) // *** clockwise needle rotation
+       {
+        if (dsw==1)
+           sweep=deg2-deg1;
+        else
+           sweep=360-deg1+deg2;
+        ctickdiff=(tickstopval-tickstartval)/tm1;
+        ctickdiff2=ctickdiff/tm2;
+        ctick=parseFloat(tickstartval);
+        tickdif=(sweep)/tm1;
+        tickdif2=tickdif/tm2;
+        asweep=sweep/colorc;
+        if (scradw&gt;0)
+           {
+            **201**.lineWidth=scradw;
+            swangle[0]=begangle;
+            swangle[1]=swangle[0]+sweep*Math.PI/180.0*cab[1];
+            swangle[2]=swangle[1]+sweep*Math.PI/180.0*(cab[2]-cab[1]);
+            swangle[3]=endangle;
+            for (k=0;k&lt;colorc;k++)
+                 {
+                  **201**.strokeStyle=colv[k];
+                  **201**.beginPath();
+                  **201**.arc(xc,yc,rad2,swangle[k],swangle[k+1],false);
+                  **201**.stroke();
+                 }
+            }
+            degtemp=deg1+90.0;
+       }
+    else // *** counterclockwise needle rotation
+       {
+        if (dsw==0)
+           sweep=deg1-deg2;
+        else
+           sweep=360-(deg2-deg1);
+        ctickdiff=-(tickstopval-tickstartval)/tm1;
+        ctickdiff2=ctickdiff/tm2;
+        ctick=parseFloat(tickstopval);
+        tickdif=(sweep)/tm1;
+        tickdif2=tickdif/tm2;
+        if (scradw&gt;0)
+           {
+            **201**.lineWidth=scradw;
+            swangle[0]=begangle;
+            swangle[1]=swangle[0]-sweep*Math.PI/180.0*cab[1];
+            swangle[2]=swangle[1]-sweep*Math.PI/180.0*(cab[2]-cab[1]);
+            swangle[3]=endangle
+            for (k=0;k &lt; colorc;k++)
+                {
+                 if (colorc==1) **201**.strokeStyle=colv[k];
+                 if (colorc==2) **201**.strokeStyle=colv[k];
+                 if (colorc==3) **201**.strokeStyle=colv[k];
+                 **201**.beginPath();
+                 **201**.arc(xc,yc,rad2,swangle[k],swangle[k+1],true);
+                 **201**.stroke();
+                 }
+            }
+        degtemp=deg2+90.0;
+       }
+   }
+//
+// *** scale text color -- rgb (% red, %green, % blue)
+//
+rgs=**23**;
+ggs=**24**;
+bgs=**25**;
+**201**.fillStyle ="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+scaletextfillcolor="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+**201**.strokeStyle="rgb("+rgs+"%,"+ggs+"%,"+bgs+"%)";
+gsbsw=**22**;
+if (gsbsw==1)
+    fw="bold";
+else
+    fw="normal";
+gsfontsize=**21**;
+gtemp2=fw+" "+"**21**"+"px"+" "+"**20**";
+**201**.font=gtemp2;
+//
+// *** draw tick marks and place scale value
+//
+tickoffset=parseFloat(scradw)/2.0;
+if (tm1 &gt;0)
+  {
+   for (i=0;i&lt;(tm1+1);i++)
+    {
+     **201**.lineWidth=1;
+     tc1sw=**140**;
+     tc2sw=**141**;
+     tc3sw=**142**;
+     if (tc1sw==1) **201**.strokeStyle="rgb(0%,0%,0%)";
+     if (tc2sw==1) **201**.strokeStyle="rgb(100%,100%,100%)";
+     if (tc3sw==1)
+        {
+        scnum1sw=**143**;
+        if (scnum1sw)
+         {
+          scnum11sw=**144**;
+          scnum12sw=**145**;
+          scnum13sw=**146**;
+          if (scnum11sw==1) **201**.strokeStyle="rgb(0%,0%,0%)";
+          if (scnum12sw==1) **201**.strokeStyle="rgb(100%,100%,100%)";
+          if (scnum13sw==1) **201**.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+         }
+     scnum2sw=**147**;
+     if (scnum2sw==1)
+        {
+         if (ctick &lt; parseFloat(**149**) )
+             **201**.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+         else
+             **201**.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+         }
+     scnum3sw=**151**;
+     if (scnum3sw==1)
+        {
+         if (ctick &lt; parseFloat(**153**) )
+            **201**.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+         else
+            if (ctick &gt; parseFloat(**156**) )
+                **201**.strokeStyle="rgb("+sc3r+"%,"+sc3g+"%,"+sc3b+"%)";
+            else
+                **201**.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+        }
+     }
+     x1=xc+Math.sin((degtemp)*Math.PI/180.0)*(rad2-tickoffset);
+     y1=yc+Math.cos((degtemp)*Math.PI/180.0)*(rad2-tickoffset)*(-1.0);
+     x2=xc+Math.sin((degtemp)*Math.PI/180.0)*(rad2-tm1len-tickoffset);
+     y2=yc+Math.cos((degtemp)*Math.PI/180.0)*(rad2-tm1len-tickoffset)*(-1.0);
+     **201**.beginPath();
+     **201**.moveTo(x1,y1);
+     **201**.lineTo(x2,y2);
+     **201**.stroke();
+     tvalue=ctick; //  ****.toFixed(rtofdec).toString();
+     txtmeasure=**201**.measureText(tvalue).width;
+     x3=xc+Math.sin((degtemp)*Math.PI/180.0)*(rad2-25);
+     y3=yc+Math.cos((degtemp)*Math.PI/180.0)*(rad2-25)*(-1.0);
+     **201**.fillStyle=scaletextfillcolor;
+     **201**.fillText(tvalue,x3-txtmeasure/2,y3+gsfontsize/2.0);
+     if (tm2 &gt; 0 &amp;&amp; i != tm1)
+       {
+        deg2=degtemp;
+        ctick2=ctick;
+        for (k=0;k&lt;tm2;k++)
+            {
+             **201**.lineWidth=1;
+             tc1sw=**140**;
+             tc2sw=**141**;
+             tc3sw=**142**;
+             if (tc1sw==1) **201**.strokeStyle="rgb(0%,0%,0%)";
+             if (tc2sw==1) **201**.strokeStyle="rgb(100%,100%,100%)";
+             if (tc3sw==1)
+                {
+                 scnum1sw=**143**;
+                 if (scnum1sw)
+                    {
+                     scnum11sw=**144**;
+                     scnum12sw=**145**;
+                     scnum13sw=**146**;
+                     if (scnum11sw==1) **201**.strokeStyle="rgb(0%,0%,0%)";
+                     if (scnum12sw==1) **201**.strokeStyle="rgb(100%,100%,100%)";
+                     if (scnum13sw==1) **201**.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+                     }
+             scnum2sw=**147**;
+             if (scnum2sw==1)
+                {
+                 if (ctick &lt; parseFloat(**149**) )
+                     **201**.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+                 else
+                     **201**.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+                }
+             scnum3sw=**151**;
+             if (scnum3sw==1)
+                {
+                 if (ctick &lt; parseFloat(**153**) )
+                     **201**.strokeStyle="rgb("+sc1r+"%,"+sc1g+"%,"+sc1b+"%)";
+                 else
+                    if (ctick &gt; parseFloat(**156**) )
+                        **201**.strokeStyle="rgb("+sc3r+"%,"+sc3g+"%,"+sc3b+"%)";
+                    else
+                        **201**.strokeStyle="rgb("+sc2r+"%,"+sc2g+"%,"+sc2b+"%)";
+
+                }
+               }
+               x1=xc+Math.sin((deg2)*Math.PI/180.0)*(rad2-tickoffset);
+               y1=yc+Math.cos((deg2)*Math.PI/180.0)*(rad2-tickoffset)*(-1.0);
+               x2=xc+Math.sin((deg2)*Math.PI/180.0)*(rad2-tm2len-tickoffset);
+               y2=yc+Math.cos((deg2)*Math.PI/180.0)*(rad2-tm2len-tickoffset)*(-1.0);
+               **201**.beginPath();
+               **201**.moveTo(x1,y1);
+               **201**.lineTo(x2,y2);
+               **201**.stroke();
+               deg2=deg2+tickdif2;
+               ctick2=ctick2+ctickdiff2;
+             }
+     }
+     ctick=ctick+ctickdiff;
+     degtemp=degtemp+tickdif;
+    }
+  }
+  //
+  // *** needle definition
+  //
+ bw=parseInt(**82**);
+ bw2=bw/2.0;
+ blen=parseInt(**79**);
+ flen=parseInt(**76**);
+ degp=150.0;
+ px1=-blen;
+ py1=-bw2;
+ px2=flen;
+ py2=-1;
+ px3=flen;
+ py3=1;
+ px4=-blen;
+ py4=bw2;
+ //
+ // *** needle definitions
+ //
+ r1=**100**;
+ g1=**101**;
+ b1=**102**;
+ r2=**103**;
+ g2=**104**;
+ b2=**105**;
+ **201**.fillStyle="rgb("+r1+"%,"+g1+"%,"+b1+"%)";
+ **201**.shadowColor = "black";
+ **201**.shadowOffsetX = parseInt(**92**);
+ **201**.shadowOffsetY = parseInt(**95**);
+ **201**.shadowBlur = parseInt(**98**);
+ **201**.save();
+ **201**.translate(xc,yc);
+ pca=(parseFloat(disp_val)-parseFloat(disp1))/(parseFloat(disp2)-parseFloat(disp1))
+ if (dsw==0 &amp;&amp; cwsw ==1) rangle=(sweep)*pca+deg1;
+ if (dsw==0 &amp;&amp; ccwsw==1) rangle=(-sweep)*pca+deg1;
+ if (dsw==1 &amp;&amp; cwsw ==1) rangle=(sweep)*pca+deg1;
+ if (dsw==1 &amp;&amp; ccwsw==1) rangle=(-sweep)*pca+deg1;
+ **201**.rotate(rangle*Math.PI/180.0);
+ **201**.beginPath();
+ **201**.moveTo(px1,py1);
+ **201**.lineTo(px2,py2);
+ **201**.lineTo(px3,py3);
+ **201**.lineTo(px4,py4);
+ **201**.lineTo(px1,py1);
+ **201**.closePath();
+ **201**.fill();
+ **201**.translate(-xc,-yc);
+ **201**.restore();
+//
+// *** needle cap (gncp checkbox)
+//
+gncpsw=**84**;
+if (gncpsw!=1)
+   {
+    caprad=parseInt(**86**);
+    **201**.shadowOffsetX = parseInt(**92**);
+    **201**.shadowOffsetY = parseInt(**95**);
+    **201**.shadowBlur    = parseInt(**98**);
+    **201**.fillStyle="rgb("+r2+"%,"+g2+"%,"+b2+"%)";
+    **201**.beginPath();
+    **201**.arc(xc,yc,caprad,2.0*Math.PI,false);
+    **201**.fill();
+    **201**.closePath();
+   }
+//
+// *** bezel northwest and southeast colors -- rgb (% red, %green, % blue)
+//
+r1=**119**;
+g1=**120**;
+b1=**121**;
+r2=**122**;
+g2=**123**;
+b2=**124**;
+nobzsw=**106**;
+if (nobzsw!=1)
+   {
+    **201**.beginPath();
+    var rwg=**201**.createLinearGradient(xc-rad/2-10,yc-rad/2-10,xc+rad/2,yc+rad/2);
+    bzc1="rgb("+r1+"%,"+g1+"%,"+b1+"%)"
+    bzc2="rgb("+r2+"%,"+g2+"%,"+b2+"%)"
+    rwg.addColorStop(0.0,bzc1);
+    rwg.addColorStop(1.0,bzc2);
+    **201**.strokeStyle = rwg;
+    **201**.shadowColor = "black";
+    **201**.shadowOffsetX = parseInt(**111**);
+    **201**.shadowOffsetY =  parseInt(**114**);
+    **201**.shadowBlur =  parseInt(**117**);
+    **201**.lineWidth=parseInt(**108**);
+    **201**.arc(xc,yc,(rad),0.0,2.0*Math.PI,false);
+    **201**.closePath();
+    **201**.stroke();
+    }
+
+if (tempfix &gt; 0) // *** adjust location of the gauge field to account for non-zero border
+                 //    (tempfix is gauge field border width from above)
+   {
+    temptop=document.getElementById("**203**").style.top;
+    templeft=document.getElementById("**203**").style.left;
+    temptop=temptop.replace("px","");
+    temptop=parseInt(temptop);
+    document.getElementById("**203**").style.top=parseInt(temptop-tempfix).toString()+"px";
+    templeft=templeft.replace("px","");
+    templeft=parseInt(templeft);
+    document.getElementById("**203**").style.left=parseInt(templeft-tempfix).toString()+"px";
+   }
+}        // *** end of the **4** function
+
+//
+// *** Below the test_slider code for plus and minus buttons -- REMOVE THIS FUNCTION FOR PRODUCTION CODE
+//
+function **4**_inc(ud) //*** plus &amp; minus buttons that increments/decrements the slider value
+{
+ if (ud==1)
+    {
+     if (parseInt(document.getElementById("**4**_range").value) &lt; parseInt(document.getElementById("**4**_range").max))
+        {
+         document.getElementById("**4**_range").value=parseInt(document.getElementById("**4**_range").value)+1;
+         **4**(40,40,document.getElementById("**4**_range").value);
+        }
+     }
+ else
+    {
+     if (parseInt(document.getElementById("**4**_range").value) &gt; parseInt(document.getElementById("**4**_range").min))
+        {
+         document.getElementById("**4**_range").value=parseInt(document.getElementById("**4**_range").value)-1;
+   **4**(40,40,document.getElementById("**4**_range").value);
+        }
+     }
+}
+// --&gt;
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload="**4**(40,40,**400**)"&gt; &lt;!--- demo page loads gauge at 40 pixels from top and 40 pixels left and passes the value of 19 --&gt;
+&lt;canvas id="**202**" style="z-index:10;position:absolute;"&gt;CANVAS NOT SUPPORTED&lt;/canvas&gt;
+&lt;div id="**203**" style="z-index:20;position:absolute;padding:0px;"&gt;
+&lt;div id="**205**" style="z-index:20;position:absolute;"&gt;&lt;/div&gt;
+&lt;div id="**206**" style="z-index:20;position:absolute;"&gt;&lt;/div&gt;
+&lt;div id="**207**" style="z-index:20;position:absolute;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--
+    The HTML below should be REMOVE FROM PRODUCTION CODE
+    It is ONLY a slide used to test the demonstration gauge.
+---&gt;
+&lt;div id="**204**" style="text-align:center;position:absolute;border:solid black 1px;"&gt;
+&lt;b&gt;Test The Display Value:&lt;/b&gt;&lt;br&gt;
+&lt;span id="**4**_min_show"&gt;**7**&lt;/span&gt;
+&lt;input type="button" value="-" onclick="**4**_inc(0)"&gt;
+&lt;input id="**4**_range" name="**4**_range" style="width:100px;" type="range" min="**7**" max="**8**" step="1" value="**400**" onchange="**4**(40,40,this.value)"&gt;
+&lt;input type="button" value="+" onclick="**4**_inc(1)"&gt;
+&lt;span id="**4**_max_show"&gt;**8**&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/HTML&gt;
+</textarea>
+<textarea style="z-index: 1; visibility: hidden; background-color: rgb(170, 170, 221); position: absolute; top: 1862px; left: 1090px;" id="ta" name="ta" rows="600" cols="80"></textarea>
+<div id="testw" style="z-index: 12; visibility: hidden; background-color: white; position: absolute; top: 1px; left: 1px; font-family: &quot;Comic Sans MS&quot;; font-size: 16px; height: 20.8px; line-height: 20.8px; font-weight: bold; font-style: normal; text-decoration: none; padding-right: 8px;">2500</div>
+</form>
+<form name="gtrackform" method="POST">
+<input type="hidden" name="gauge_post_type" value="2">
+</form>
+<div id="q_out" style="z-index:9;visibility:hidden;background-color:#aaaa00;position:absolute;top:0px;left:1190px;"></div>
+
+
+
+<span style="margin: 0px auto; border: 2px dotted rgb(255, 165, 0); position: absolute; z-index: 2147483647; visibility: hidden; left: 374px; width: 0px; top: 311px; height: 0px;"></span><span style="z-index: 2147483647; position: absolute; visibility: hidden; left: 359px; width: 50px; top: 296px; height: 20px; font-size: 10px; color: black;"></span></body></html>
