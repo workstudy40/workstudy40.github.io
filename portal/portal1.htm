@@ -1,0 +1,679 @@
+<html>
+<head>
+<script language="javascript" src="AjaxRequest.js"></script>
+<script language="javascript">
+<!--
+function get_uh_news()
+{
+  AjaxRequest.submit(fred,
+  {
+    'url':'http://www.uh.edu/news-events/index.php
+
+
+   ,'onSuccess':function(req){ news_out.innerHTML=req.responseText;}
+   ,'onError':function(req){ news_out.innerHTML=req.responseText;}
+  }
+  );
+
+}
+-->
+</script>
+</head>
+<body bgcolor="#ffffff" link="#ff0000" vlink="#cc0000" onload="get_uh_news()">
+<center>
+<table width="100%" border="2">
+<tr><td bgcolor="#cccccc"><center><img src="captsm.gif" border="2" align="top"><br><font face="HELVETICA, ARIAL" size="1">Capt. Horatio T.P. Webb</center></td><td><font face="HELVETICA, ARIAL" size="4"><center>
+<b>Portals and Dashboards<br>Using Frames, Ajax and MS SharePoint</b><br>MIS 4372 Transaction Processing II</center>
+</b>
+</td>
+</tr>
+</table></center>
+<p>
+The concept of a "user portal" has increasingly gained in popularity. These portals provide a single web site for the user that acts as a gateway to many of the user's other computing needs. Typically the must gain access to the portal by a logon process. Once logged on, the user sees connections to many different services on a single page. Portals have the advantages of a "single logon" that simplifies access to multiple system features. Most often these portals appear an organization's intranet where tasks, work groups, application tools and databases are commonly shared; secure and maintained.
+<p>
+Microsoft has taken a particular interest in the development of portals with their "SharePoint" technology. They claim that the use of their SharePoint servers provides valuable advantages to organizations in:
+<p>
+<ol>
+<li><b>Portals</b>
+<p>This is the idea of a single page where users logon and are presented with a variety of applications. This tends to be an HTML page with the organizational advantage that simplifies and aggregates several MIS functions for the user.
+<p>
+<li><b>Enterprise Search</b>
+<p>In an intranet environment where many diverse users have overlapping data and query needs, enterprise-wide search becomes a critical need. This also means that security and accessibility have been provided to maintain data and access integrity.
+<p>
+<li><b>Enterprise Content Management</b>
+<p>Content management has become a significant issue for most organization as the amount and number of alternative media types has risen dramatically. Having central access made available to a variety of user simplifies both finding and displaying content as well as reducing storage redundancy.
+<p>
+<li><b>Business Processes and Forms</b>
+<p>
+The ability to provide web-based processing for standard user tasks has been a staple of the client/server applications of the web since its inception. "Transaction processing" in whatever form is the often the most critical tasks the web performs. This may range from traditional filling out standard forms (like requesting a parking permit or filing a travel request) to shared calendars and messaging. These tasks typically require the user to make some permanent change in a database (process a transaction) -- as compared to static web displays or data retrievals.
+<p>
+<li><b>Business Intelligence</b>
+<p>
+With the advent of large databases, companies can now not only record transaction activity (i.e., data warehousing), it can also be selectively accessed (i.e., data mining) and used to make strategically important decisions about the future (i.e., business intelligence)
+<p>
+<li><b>Collaboration</b>
+<p>
+With large central databases, common content, and data access control provided for at the organizational level, users can share applications, data and communication channels.
+<p>
+<li><b>Dashboards</b>
+<p>
+An later variation of a portal is the "dashboard" concept where on a single web page many data sources are aggregated to provide a manager with constantly updated status reports. These reports features often use graphs, dials and indicator lights to report on the constantly changing environments -- much like the "dashboard" of your automobile.
+</ol>
+<P>
+<p>
+In all of these ideas and applications, one of the central ideas is "sharing". This creates several serious technical issues. For sharing to take place, the following must be addressed:
+<ul>
+<li>Access control (i.e., who can access the data or application?; how is access controlled: userids; passwords; biometrics; etc.)
+<li>Task permissions (i.e., what can the user do?: just see it (read); write (modify); or create/destroy)
+<li>Maintenance (i.e., who is responsible for: backup; recovery; and catastrophe management/planning)
+<li>Change Management (i.e., what is the process whereby a group can  implement changes to operation of the system?)
+<li>Development (i.e., how are new features: designed; implemented; tested; documented; and paid for)
+</ul>
+<p>
+<center><b>NONE OF THESE IDEAS ARE NEW</b></center>
+<p>
+They have all been tried <u>in various forms, using various computer technology</u> since the advent of networks in the late 1960s. However, the buzz words that name these shared processes have evolved as have the specific technical solutions.
+<p>
+<hr>
+<p>
+One of the central advantages to both the portal and dashboard concepts is the assumption that multiple sources are employed on a single page simultaneously. The ability to accomplish this in a browser environment has evolved over the years using a variety of approached. We will examine some common web-based technologies in the order in which they appeared below:
+<ol>
+<li><b>Frames</b>
+<p>
+HTML Frames provides the ability to display multiple web pages within a single web page and was one of the early features provided in HTML.
+<P>
+The original concept relies on the idea of a "frame" as space containing the contents of a single HTML page. "frames" could then be arranged into a "frameset". This idea is different in HTML from the concept of an HTML page containing a single page of content inside the &gt;body&gt; and &lt;/body&gt; tags. So instead of a single page like
+<p>
+<table border="0">
+<tr>
+<td>
+&lt;html&gt;<br>
+&lt;body&gt;<br>
+.<br>
+.<br>
+contents of a single page<br>
+.<br>
+.<br>
+&lt;/body&gt;<br>
+&lt;/html&gt;<br>
+</td>
+</table>
+<p>
+The use of frames <u>replaces</u> the &lt;body&gt; tag with a &lt;frameset&gt; tag pair inside of which the multiple frames are specified with &lt;frame&gt; tags.
+<p>
+The general layout is:
+<p>
+<table border="0">
+<tr>
+<td>
+&lt;html&gt;<br>
+&lt;frameset   [<i>rows | cols</i>] = "[<i>pixels | %</i>],&nbsp;&nbsp;[<i>pixels | %</i>], &nbsp;&nbsp;[<i>pixels | %</i>],..."&gt;<br>
+<br>
+&lt;frame src="<i>URL of an HTML page</i>" &gt;
+<br>
+&lt;frame src="<i>URL of an HTML page</i>" &gt;
+<br>
+&lt;frame src="<i>URL of an HTML page</i>" &gt;
+<br>
+&lt;/frameset&gt;<br>
+&lt;/html&gt;<br>
+</td>
+</table>
+<p>
+The first frameset attribute identifies whether the page is to subdivided in multiple pages arranged in either rows or columns. This choice is then followed by a quoted list of "widths for each column" OR "heights for each row" depending on whether "rows" or "cols" has been chosen expresses ed in pixels. Alternatively, the "widths" or "heights" can be expresses as:
+<p>
+<ul>
+<li> a percentage of the visible browser window
+<li> a width of height in pixels
+<li> use an "*" to mean whatever is leftover after the other fixed (% or pixels) attributes are calculated
+</ul>
+<p>
+For example:
+<P>
+<ul>
+<li> <i>cols="50%,25%,25%"</i> means to divide the window into 3 separate web pages: the first taking up half (50%) of the available width; then two pages each taking up 25% of the available page width.
+<li> <i>rows="50%,25%,25%"</i> means to divide the window into 3 separate web pages: the first taking up half (50%) of the available height; then two pages each taking up 25% of the available page height.
+<p>
+Note: if you use percentages they should add up to 100%.
+<p>
+<li> <i>rows="200,150,150"</i> will create three pages stacked vertically in rows; the first is 200 pixels tall; the second 150 pixels tall; and the third 150 pixels tall. The entire page will be 500 pixels tall (250 + 150 + 150).
+<p>
+<li> <i>cols="200,150,150"</i> will create three pages arranged in three columns; the first is 200 pixels wide; the second 150 pixels wide; and the third 150 pixels wide. The entire page will be 500 pixels wide (250 + 150 + 150).
+</ul>
+<p>
+Here if the HTML for a simple three column frameset:
+<p>
+<div style="border:1px solid black;padding:6px;"><b>
+&lt;html&gt;<br>
+&lt;frameset cols="350,150,*"&gt;<br>
+&lt;frame src="http://www.bauer.uh.edu/parks/rss4.xml"&gt;<br>
+&lt;frame src="http://www.bauer.uh.edu/parks/spidey3a.asp"&gt;<br>
+&lt;frame src="http://www.google.com"&gt;<br>
+&lt;/frameset&gt;<br>
+&lt;/html&gt;</b>
+</div>
+<p>
+The three HTML pages are to be arranged in columns. Three column widths are specified: 350 for the first (a sample RSS nes feed); 150 for the second (a stock market quote scapped from Google) and whatever width is leftover of the current browser window is the width of the third column (the Goggle home page). For each HTML page a "frame" tag is shown with an "src=" attribute that specifies the URL for the HTML page that is to appear in the specified column. Then there is a closing "frameset" tag. Note: there is NO body tag -- Each frame has its own. See the <a href="portal_ex_1.htm">example here</a>.
+<p>
+There are numerous frameset and frame tag attributes that can be set to control size, function and appearance:
+<p>
+<ul>
+<li>the frameset's attributes
+<p>
+<ul>
+<li>the <b>frameborder</b> attribute can be set to "yes" or "no" to indicate whether or not the frameset has an outside border.
+<li>the <b>border</b> attribute can be set to width of the frameset border (measured in pixels).
+<li>the <b>framespacing</b> attribute can be set to spacing betweenthe frames of a frameset (measured in pixels).
+</ul>
+<p>
+<li><b>a frame's attributes</b>
+<p>
+<ul>
+<li>the <b>src</b> attribute sets the URL for the frame
+<li>the <b>marginwidth</b> attribute sets the left and right margins of the frame
+<li>the <b>marginheight</b> attribute sets the top and bottom margins of the frame
+<li>the <b>scrolling</b> attribute sets defines the scrollbars for the frame. Attribute values are: "yes" (always provide scrollbars whether needed or not), "no" (never provide scrollbars) and "auto" (provide scroll bars ONLY if the actual page height or width exceeds what is available -- i.e., scrollbars IF they are needed).
+<li>the <b>frameborder</b> attribute can be set to "yes" or "no" to indicate whether or not the frame has an outside border.
+<li>the <b>bordercolor</b> attribute can be set to color of the frame's border
+</ul>
+</ul>
+<p>
+If desired, you can subdivide the page further. This can be accomplished by making one of the frames that make up the frameset a frameset itself. Thus, a frameset of row frames can be subdivided into cols and vice versa. Here is the sequence of HTML pages that would be required to make a frameset with nine HTML pages in three rows and three columns:
+<p>
+The top level page would be (named: <i>frame_ex_top.htm</i>), and have three rows like this:
+<p><pre>
+&lt;html&gt;
+&lt;frameset rows="*,*,*"&gt;
+&lt;frame src="frame_ex_row1.htm"&gt;
+&lt;frame src="frame_ex_row2.htm"&gt;
+&lt;frame src="frame_ex_row3.htm"&gt;
+&lt;/frameset&gt;
+&lt;/html&gt;</pre>
+<p>
+Then, <u>each</u> of the three rows would  be a frameset:
+<p>
+The first row would be a frameset with three frames:
+<p>
+<table border="1">
+<tr>
+<td align="center"><b>frame_ex_row1.htm</b></td>
+</tr><tr>
+<td><pre>
+&lt;html&gt;
+&lt;frameset cols="*,*,*"&gt;
+&lt;frame src="frame_ex_row1_col1.htm"&gt;
+&lt;frame src="frame_ex_row1.col2.htm"&gt;
+&lt;frame src="frame_ex_row1.col3.htm"&gt;
+&lt;/frameset&gt;
+&lt;/html&gt;
+</td>
+</tr></table>
+<p>
+The three HTML pages on the first row would be:
+<p>
+<table border="1">
+<tr>
+<td align="center"><b>frame_ex_row1_col1.htm</b></td>
+<td align="center"><b>frame_ex_row1_col2.htm</b></td>
+<td align="center"><b>frame_ex_row1_col3.htm</b></td>
+</tr>
+<tr>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 1 col 1 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 1 col 2 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 1 col 3 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+</tr>
+</table>
+<p>
+The second row would be a frameset with three frames:
+<p>
+<table border="1">
+<tr>
+<td align="center"><b>frame_ex_row2.htm</b></td>
+</tr><tr>
+<td><pre>
+&lt;html&gt;
+&lt;frameset cols="*,*,*"&gt;
+&lt;frame src="frame_ex_row2_col1.htm"&gt;
+&lt;frame src="frame_ex_row2.col2.htm"&gt;
+&lt;frame src="frame_ex_row2.col3.htm"&gt;
+&lt;/frameset&gt;
+&lt;/html&gt;
+</td>
+</table>
+<p>
+The three HTML pages on the second row would be:
+<p>
+<table border="1">
+<tr>
+<td align="center"><b>frame_ex_row2_col1.htm</b></td>
+<td align="center"><b>frame_ex_row2_col2.htm</b></td>
+<td align="center"><b>frame_ex_row2_col3.htm</b></td>
+</tr>
+<tr>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 2 col 1 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 2 col 2 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 2 col 3 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+</tr>
+</table>
+<p>
+The third row would be a frameset with three frames:
+<p>
+<table border="1">
+<tr>
+<td align="center"><b>frame_ex_row3.htm</b></td>
+</tr><tr>
+<td><pre>
+&lt;html&gt;
+&lt;frameset cols="*,*,*"&gt;
+&lt;frame src="frame_ex_row3_col1.htm"&gt;
+&lt;frame src="frame_ex_row3.col2.htm"&gt;
+&lt;frame src="frame_ex_row3.col3.htm"&gt;
+&lt;/frameset&gt;
+&lt;/html&gt;
+</td>
+</tr></table>
+<p>
+The three HTML pages on the third row would be:
+<p>
+<table border="1">
+<tr>
+<td align="center"><b>frame_ex_row3_col1.htm</b></td>
+<td align="center"><b>frame_ex_row3_col2.htm</b></td>
+<td align="center"><b>frame_ex_row3_col3.htm</b></td>
+</tr>
+<tr>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 3 col 1 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 3 col 2 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+<td><pre>
+&lt;html&gt;
+&lt;body&gt;
+I am the row 3 col 3 page
+&lt;/body&gt;
+&lt;/html&gt;
+</td>
+</tr>
+</table>
+<p>
+Whew! See the working example <a href="frame_ex_top.htm">here</a>.
+<p>
+Any other arrangements of multiple subdivisions can be accomplished.
+<p>
+<li><b>Cross Frame Scripting</b>
+<p>
+It is simple (?) enough to make framesets that provide a way to alternatively lay out multiple HTML pages. But the frameset is only a mechnism for specifying pages -- it does not address communication BETWEEN frames.
+<p>
+The HTML object model provides a simple way to: (1)  access HTML object <u>properties</u>; (2) specify actions based on object <u>events</u>; and (3) control behaviors by executing an object's <u>methods</u>. In order to accomplish these tasks, the script must have a way to reference the object. In the HTML object model, that method used by scripts to reference HTML objects is:
+<p>
+<table border="1">
+<tr>
+<td><b>window</b></td><td><b>.</b></td>
+<td><b>document</b></td><td><b>.</b></td>
+<td align="center"><b>forms</b><br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>.</b></td>
+<td align="center"><b>elements</b><br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>.</b></td>
+<td><b>property<br>event<br>method</td>
+</tr>
+</table>
+<p>
+However, in a frameset there are <u>multiple</u> pages (i.e., documents), so we must add an additional componewnt in the object model. In the same vein as "forms" and "elements" we must add the "frames" name of number. Notes:
+<ol>
+<li> we have three options about where to start the refernce:
+<ol>
+<li> window (means start at the browser);
+<li> top (same as window); or
+<li> parent (start the reference at the parent of the current page).
+</ol>
+<li> then we make a reference to the frame's name or number. This tells us how to navigate through the frameset's frames (i.e., 0,1,2,...). The first "frames" reference is to the first frameset; the second to the second frameset (if it exists); etc.
+<li> the use of "document" seems redundant -- it is OPTIONAL in the IE browser -- but is required if you are in Firefox (so always use the ".document.").
+<li>the remainder of the object reference is the same as the non-frame version
+</ol>
+<p>
+Here is the general form:
+<p>
+<table border="1">
+<tr>
+<td><b>window<br>or<br>top<br>or<br>parent</b></td><td><b>.</b></td>
+<td align="center"><b>frames</b><br>1st level<br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>.</b></td>
+<td align="center"><b>frames</b><br>2nd level<br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>.</b></td>
+<td align="center"><b>frames</b><br>3rd level<br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>...</b></td>
+
+<td><b>document</b></td><td><b>.</b></td>
+<td align="center"><b>forms</b><br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>.</b></td>
+<td align="center"><b>elements</b><br>name<br>or<br>number<br>(0,1,2,...)</td><td><b>.</b></td>
+<td><b>property<br>event<br>method</td>
+</tr>
+</table>
+<p>
+Here is a simple three frame example:
+<p>
+<pre>
+&lt;html&gt;
+&lt;frameset rows="*,*,*"&gt;
+&lt;frame src="frame_ref1.htm"&gt;
+&lt;frame src="frame_ref2.htm"&gt;
+&lt;frame src="frame_ref3.htm"&gt;
+&lt;/frameset&gt;
+&lt;/html&gt;
+</pre>
+<p>
+Here is the code for the first frame in the frameset (<b>frame_ref1.htm</b>):
+<p>
+<div style="border:1px solid black;padding:4px;width:400px;">
+<pre>
+&lt;html&gt;&lt;head&gt;
+&lt;script language="javascript"&gt;
+&lt;!--
+function pref()
+{
+  if (window.document.form1.elements[1].checked) targ=0;
+  if (window.document.form1.elements[2].checked) targ=1;
+  if (window.document.form1.elements[3].checked) targ=2;
+  getvalue=window.document.form1.t1.value;
+  top.frames[targ].document.form1.t1.value=getvalue;
+}
+--&gt;
+&lt;/script&gt;&lt;/head&gt;
+&lt;body&gt;
+This is frame_ref1.htm. This page uses a form named "form1".&lt;br&gt;
+&lt;form name="form1"&gt;
+This is a textbox named t1 &lt;input name="t1" type="text" size="5"&gt;&lt;p&gt;
+Put the value in the textbox above into the textbox in the
+&lt;br&gt;1st frame &lt;input type="radio" name="b"&gt;
+&lt;br&gt;2nd frame &lt;input type="radio" name="b" checked&gt;
+&lt;br&gt;3rd frame &lt;input type="radio" name="b"&gt;
+&lt;p&gt;&lt;input type="button" onClick="pref()" value="change it"
+&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;
+</pre></div>
+<p>
+The code shows how to retrieve a value from a textbox; determine (from the checked radio button, it assignes 0,1,2 to "targ") which frame gets the value. The cross frame assignment is made by:
+<p>
+<b>top.frames[targ].document.form1.t1.value=getvalue;</b>
+<P>
+See the working <a href="frame_ref.htm">frame reference example</a> as discussed above.
+<p>
+<li><b>iFrames -- Inline Frames</b>
+<P>
+While frames have received some level of utilization, there is much derision because of: printing issues (only on page can be printed from the frameset at a time and the user must click inside the frame to print it), bookmarking issues (doesn't retain any navigation that occurs inside the frameset in the bookmark) and navigation issues (confusing to users how the navigation works). Originally some browsers didn't support frames. This is generally not true today. But there is considerable outdated information about alledged "frame problems".
+<p>
+However, the "in-line" version of frame has received some wide acceptance. An inline frame does NOT require the "frameset". One or more "in-line frames can be put "anywhere" in a standard HTML page without constraints. An "iframe" can appear anywhere in an HTML document. There are numerous attributes that define the iframe. In general the tag is:
+<P>
+<pre>
+&lt;iframe&gt;<p>
+any HTML<p>
+&lt;/iframe&gt;
+</pre>
+<p>
+Attributes are:
+<p>
+<ul>
+<LI><B>name</B> = "<i>some_name</i>"
+<p>
+Optional. You must use this to reference the frankme with script.
+<p>
+<li><b>frameborder</b> = "<i>0</i> | <i>1</i>"
+<p>
+1=show a frameborder; 0 do not to display a border
+<P>
+<li><b>height</b> = "<i>pixels</i>"
+<p>
+sets the frame height in pixels
+<p>
+<li><b>marginheight</b> = "<i>pixels</i>"
+<p>
+Sets the top and bottom margins of an the iframe
+<p>
+<li><b>marginwidth</b> = "<i>pixels</i>"
+<p>
+Sets left and right margins of an iframe
+<p>
+<li><b>scrolling</b> = "<i>yes</i> | <i>no</i> | <i>auto</i>"
+<p>
+<li><b>src</b> = "<i>URL</i>"
+<p>
+<li><b>width</b> = "<i>pixels</i>"
+<p>
+Sets  the width of the iframe
+<p>
+<li><b>title</b> = "<i>title text</i>
+</ol>
+<p>
+See <a href="iframe_ref.htm">the working iframe example here</a>.
+<p>
+The ability to place one or more HTML pages provides the capability to create an access portal with several page options immediately visible to the user. Frames used in the ways discussed above are a quick and dirty tool to get a portal done. It works without any special server-side programming
+<p>
+<li><b>Ajax Updating</b>
+<p>
+While frames is a way to control simultaneous multiple access on a single page, it has generally been replaced by the Ajax technologies. See my 2000 initial XMLHTTP page <a href="http://www.bauer.uh.edu/parks/xml3.htm">here</a>. The technology XMLHTTP discussed was ultimately renamed "AJAX" (asynchronous JavaScript and XML). This is still a misnomer. It doesn't have to be javascript (it can be vbscript) AND it doesn't not have to be XML (it can be text, HTML or anything else you wish to get/put on the page) AND it does NOT have to be asynchronous. What AJAX <u>does</u> is to:
+<p>
+<b>send and receive data to/from servers to the browser from a scripting language <u>without</u> refreshing (replacing) the contents of the page</b>
+<p>
+Most importantly, this AJAX activity is invisible to the user and it can work in the "background" while the user does other things.
+My pages on Ajax are:
+<ul>
+<li>The basic idea from 2000 is <a href="http://www.bauer.uh.edu/parks/xml3.htm">here</a>. How to send an Ajax request to the server.
+<li>A simple server side coding example (in asp) to respoind to a client side server request (<a href="http://auckland.bauer.uh.edu/students/parks/glajax.htm">here</a>).
+<li>A cross browser version of the same example <a href="http://auckland.bauer.uh.edu/students/parks/glajax_cross.htm">here</a>). This example utilizes the cross-browser <b>ajaxtoolbox</b> (<a href="http://www.ajaxtoolbox.com/">here</a>) to allow the XMLHTTP to work in non-IE browsers.
+</ol>
+<p>
+Most important in this technical discussion of Ajax what can be obtained. Typically, Ajax was initially used to get
+data from a database. In this mode a request is made to a server-side middle ware program to access a database and return the data to the executing script code. The script code then placed the result on the page. Now we are not limited to just conversing with middleware server programs. We can also access the content of other people's pages (HTML or server side programs) in the same way.
+<p>
+Lets make a simple ajax program that accesses data on a google page. While it might be easy to access any google.com page using a HTML link, the problem would be that the google page would replace the existing page. We only want a little piece of the google page -- not the whole thing.
+<p>
+Let us suppose that we want the current news on the UH News Page.  This page is located by clicking on the "VIEW ALL NEWS" Link at the end of the "TOP STORIES COLUMN". We could type or link to the actual address:
+<p>
+<b>http://www.uh.edu/news-events/index.php</b>
+<p>
+Let's use a 660 x 300 iframe to see this page:
+<p>
+<iframe src="http://www.uh.edu/news-events/index.php" width="600" height="300" scrolling="auto"></iframe>
+<p>
+Suppose we really want ONLY the "TOP STORIES" section -- not the whole page. If we go to the page above and click on "View", then "Source" we get a 200+ line HTML page. With a little judicious searching we find the "TOP STORIES" section begins with the following:
+<p>
+&lt;h1&gt;Top Stories&lt;/h1&gt;
+<p>
+...then each story begins with a span tag like this:
+<p>
+&lt;span class="hd"&gt;
+<p>
+Now we need:
+<ol>
+<li>some client-side Ajax to call a server-side program;
+<lI>a server-side program to go get the news-events page's content and
+then strip out the data i want, format it and return it to the client
+<li>client side code to take the AJAX response from the server and display it on the page
+</ol>
+<p>
+Why do I need the server? Why can't ajax go get the google page content directly? This presents a serious security problem called "cross-browser scripting" (aka "Xbrowser scripting" or "Xscripting"). While I can always get the Google page into the browser I am <u>prevented</u> from accessing the details of the page from a client-side script. This is prevented by all browsers as a security measure. However, a server-side program CAN do this (access the contents of a referenced page). This is exactlty how google.com and other search engines crawl the web with robots and spiders and access/index the page contents. You cannot, however, do this from client-side browser code. So we have to have a server side program.
+<p>
+Here is the server-side code (named: <b>spidey4c.asp</b>) I will use to get the page, parse the data and extract what i need and return it to the client:
+<p>
+<div style="border:1px solid black; width:700px; padding:6px;">
+<pre>
+&lt;%
+dim story (200)
+dim story_start (200)
+url = "http://www.uh.edu/news-events/index.php"
+set xmlhttp = CreateObject("MSXML2.ServerXMLHTTP")
+xmlhttp.open "GET", url, false
+xmlhttp.send ""
+'
+' Here is the relevant part of the HTML generated from
+' http://www.uh.edu/news-events/index.php :
+'
+' Our search should start immediately AFTER this
+'
+'  &lt;h1&gt;Top Stories&lt;/h1&gt;
+'
+'
+  s1="&lt;h1&gt;Top Stories&lt;/h1&gt;" '***start searching after this
+  ls1=len(s1) '***length of desired string
+
+'
+' here is what ajax retrurned
+'
+  t=xmlhttp.responseText
+  st1=Instr(t,s1) '*** find the start string
+
+' this tells us where to begin seacrhing
+'
+'
+' Each news section begins with:
+'
+' &lt;span class="hd"&gt;
+'
+
+' the end of the "Top Stories" section is found when the tag below is found:
+'
+' &lt;p class="right"&gt;
+'
+'
+s2="&lt;p class="+chr(34)+"right"+chr(34)+"&gt;"
+st2=Instr(t,s2) '*** find the stop string location
+
+'
+' Each story then starts with this:
+'
+s3="&lt;span class="+chr(34)+"hd"+chr(34)+"&gt;"
+
+cur = st1            '*** move the cursor to the "TOP STORIES" section
+cur=Instr(cur,t,s3)  '*** find the first story
+sn=0
+response.write "&lt;p&gt;&lt;ol&gt;"
+while cur < st2
+    sn=sn+1
+    newcur=Instr( (cur+1) ,t,s3)
+    if newcur <> 0 then
+      nc=newcur-cur
+      story(sn)=mid(t,cur,nc)
+	  wa="href="+chr(34)
+	  wa2=wa+"http://www.uh.edu/news-events/" '***insert the correct http prefix and URL
+	  story(sn)=replace(story(sn),wa,wa2)
+	  response.write "&lt;li&gt; "+story(sn)
+	  response.flush
+      cur=newcur
+    else
+      cur=1000000 '***force end of loop if no more found
+    end if
+wend
+response.write "&lt;/ol&gt;"
+set xmlhttp = nothing
+%&gt;
+</pre>
+</div>
+<p>
+This server-side code performs three searches within the text of the UH Top Stories page, extracts them, formats them and returns them to the client.
+<p>
+Below is the output returned by the server-side code:
+<P>
+<div id="news_out" style="border:2px solid black;width:500px;background-color:#cccccc;">
+</div>
+<P>
+Here is the client-side code that is implemented on THIS PAGE to request, retrieve and display the data:
+<P>
+<div style="border:1px solid black;width:600px;">
+<pre>
+&lt;script language="javascript" src="AjaxRequest.js"&gt;&lt;/script&gt;
+&lt;script language="javascript"&gt;
+function get_uh_news()
+{
+  AjaxRequest.submit(fred,
+  {
+    'url':'http://auckland.bauer.uh.edu/students/parks/spidey4c.asp'
+   ,'onSuccess':function(req){ news_out.innerHTML=req.responseText;}
+   ,'onError':function(req){ news_out.innerHTML=req.responseText;}
+  }
+  );
+}
+&lt;/script&gt;
+</pre>
+</div>
+<p>
+As long as I know the page, I can get the page content on the server, strip out what I want and return it to the user. <b>THIS IS EXTREMELY POWERFUL!</b>. I can get whatever I want, check it whenever, save it, flush it, or just show it -- this lets me crawl it all! So long as the format of the page doesn't change I can get whatever I want, whenever I want. So, if it is on the web -- I own it (i.e., I <i>pwn</i> it).
+<p>
+Note 1: The "news_out" reference in the code above is the id of the DIV block above (now gray and filled with the retrieved data from the UH News site). It was originally empty like this:
+<p>
+<b>&lt;div id="news_out" style="border:2px solid black;width:700px;background-color:#cccccc;"&gt;<br>
+&lt;/div&gt;</b>
+<p>
+Note 2: that this version of the ajaxtoolbox expects to send "form" data from a form named "fred". We intend to send NO data, but must have an empty form on the page. So the following empty form is embedded at the end of this page:
+<p><b>
+&lt;form name="fred" method="POST"&gt;&lt;'/form&gt;</b>
+<p>
+<li><b>Dashboards</b>
+<P>
+Dashboards are nothing more than special cash of a portal that produces constantly updated info on a page in a quickly readable fashion. Dashboards have:
+<p>
+<li>a partitioned page;
+<p>
+[We can partition with frames, iframes or div blocks]
+<p>
+<li>that <u>gets "stuff"</u> from the web and formats it into the partitions;
+<p>
+[We can get HTML pages; or asp/php/pl pages; AJAX, parts of web pages; reports; or just data]
+<P>
+<li>in easily interpreted visual fromats;
+<p>
+[often graphs, dials, meters or indicator lights that use colors and graphics in highly visual formats]
+[i.e., controls the refresh rate -- updates the partition every second, minute, hour or day, etc.]
+</ol>
+<p>
+See <A href="h5.htm">HTML 5 Graphs and Dashboards Using Canvas (at the bottom of the page)</a>
+<p>
+and
+<p>
+<A href="dash.htm">A Tabbed Navigation Scheme</a>
+<p>
+<li>and controls the frequency of the <u>repetition</u>.
+<p>
+</ol>
+<form name="fred" method="POST"></form>
+</body>
+</html>
