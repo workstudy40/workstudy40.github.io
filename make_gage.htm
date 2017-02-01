@@ -54,7 +54,7 @@ To use the gauge there are TWO PARTS:
 
    Both the canvas and gauge field are absolutely positioned according to the first two
    parameters passed to the function. The default values are left=40px, top=40px.
-
+lk
    The gauge rectangle overlays the canvas and contains three DIV blocks:
 
    3. a DIV block for the first text field (id="MDC_text1_div")
@@ -99,9 +99,9 @@ document.getElementById("MDC_canvas").style.left=parseInt(MDC_gauge_field_left).
 document.getElementById("MDC_gover_div").style.left=parseInt(MDC_gauge_field_left).toString()+"px";
 document.getElementById("MDC_canvas").style.top=parseInt(MDC_gauge_field_top).toString()+"px";
 document.getElementById("MDC_gover_div").style.top=parseInt(MDC_gauge_field_top).toString()+"px";
-document.getElementById("MDC_test_div").style.top=parseInt(MDC_gauge_field_top+h+20).toString()+"px";
-document.getElementById("MDC_test_div").style.left=parseInt(MDC_gauge_field_left).toString()+"px";
-document.getElementById("MDC_test_div").style.width=parseInt(w).toString()+"px";
+//document.getElementById("MDC_test_div").style.top=parseInt(MDC_gauge_field_top+h+20).toString()+"px";
+//document.getElementById("MDC_test_div").style.left=parseInt(MDC_gauge_field_left).toString()+"px";
+//document.getElementById("MDC_test_div").style.width=parseInt(w).toString()+"px";
  //
  // *** set canvas and gauge field size
  //
@@ -268,13 +268,13 @@ else
 //
 //***set min max values of the test slider if it exists
 //
- if (typeof document.getElementById("MDC_range") != "undefined")
-   {
-    document.getElementById("MDC_range").max=parseInt(2500);
-    document.getElementById("MDC_range").min=parseInt(0);
-    document.getElementById("MDC_min_show").innerHTML=parseInt(0).toString();
-    document.getElementById("MDC_max_show").innerHTML=parseInt(2500).toString();
-   }
+ // if (typeof document.getElementById("MDC_range") != "undefined")
+   // {
+    // document.getElementById("MDC_range").max=parseInt(2500);
+    // document.getElementById("MDC_range").min=parseInt(0);
+    // document.getElementById("MDC_min_show").innerHTML=parseInt(0).toString();
+    // document.getElementById("MDC_max_show").innerHTML=parseInt(2500).toString();
+   // }
 
 //
 // *** locate text1, text2 and display value
