@@ -4,7 +4,7 @@
 <!--
 Usage:
 
-When the "make" button on the great make_gauge.htm page is clicked, the code creates:
+When the "make" button on the make_gauge.htm page is clicked, the code creates:
 
 1. A textarea (at the bottom of the page) with both the javascript code for
    the function you named: MDC AND html necessary for the gauge
@@ -734,25 +734,7 @@ if (tempfix > 0) // *** adjust location of the gauge field to account for non-ze
 //
 // *** Below the test_slider code for plus and minus buttons -- REMOVE THIS FUNCTION FOR PRODUCTION CODE
 //
-function MDC_inc(ud) //*** plus & minus buttons that increments/decrements the slider value
-{
- if (ud==1)
-    {
-     if (parseInt(document.getElementById("MDC_range").value) < parseInt(document.getElementById("MDC_range").max))
-        {
-         document.getElementById("MDC_range").value=parseInt(document.getElementById("MDC_range").value)+1;
-         MDC(40,40,document.getElementById("MDC_range").value);
-        }
-     }
- else
-    {
-     if (parseInt(document.getElementById("MDC_range").value) > parseInt(document.getElementById("MDC_range").min))
-        {
-         document.getElementById("MDC_range").value=parseInt(document.getElementById("MDC_range").value)-1;
-   MDC(40,40,document.getElementById("MDC_range").value);
-        }
-     }
-}
+
 // -->
 </script>
 </head>
@@ -767,14 +749,7 @@ function MDC_inc(ud) //*** plus & minus buttons that increments/decrements the s
     The HTML below should be REMOVE FROM PRODUCTION CODE
     It is ONLY a slide used to test the demonstration gauge.
 --->
-<div id="MDC_test_div" style="text-align:center;position:absolute;border:solid black 1px;">
-<b>Test The Display Value:</b><br>
-<span id="MDC_min_show">0</span>
-<input type="button" value="-" onclick="MDC_inc(0)">
-<input id="MDC_range" name="MDC_range" style="width:100px;" type="range" min="0" max="2500" step="1" value="19" onchange="MDC(40,40,this.value)">
-<input type="button" value="+" onclick="MDC_inc(1)">
-<span id="MDC_max_show">2500</span>
-</div>
+
 
 </body>
 </HTML>
