@@ -221,50 +221,12 @@
 <!-- InstanceBeginEditable name="page_content" -->
 <p> This PowerBI Visual is an embedded report. Hold Ctrl to select multiple Dashboard Parameters eg Monday, Tuesday, and Wednesday's data
 	<br>
-<iframe width="933" height="700" src="https://app.powerbi.com/view?r=eyJrIjoiNDA0MGFiZjAtNTQyNC00YWU4LTk0ZDctN2JiMzE3MzY3NTgxIiwidCI6IjVjZWQ3MmY3LWE4YmMtNDRmYy04ZjA2LWEwZThjYTUyOTI5NiIsImMiOjN9" frameborder="0" allowFullScreen="true"></iframe>
-	
+<iframe width="933" height="700" src="https://app.powerbi.com/view?r=eyJrIjoiMzBiM2ZlNWMtMDQ4YS00NDAxLTllNmMtMzFlNzI4YmQzMDc2IiwidCI6IjVjZWQ3MmY3LWE4YmMtNDRmYy04ZjA2LWEwZThjYTUyOTI5NiIsImMiOjN9" frameborder="0" allowFullScreen="true"></iframe>
 	
 <br>
 <p> <a href="https://workstudy40.github.io/poc3/GroupFitness.html">Group Fitness Dashboard</a>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['bar']});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Class', 'Guys', 'Girls', 'Total'],
-          ['Total Body MAX', 0, 1, 1],
-['Insanity',3,15,18],
-['Zumba',0,15,15],
-['Gentle Yoga',0,10,10],
-['Power Yoga',3,14,17],
-['Cycling',0,8,8],
-['Aqua Zumba',0,3,3],
-['Total Body MAX',4,14,18],
-['Zumba',0,26,26],
-['SUP Yoga',0,3,3],
-['Buns n Guns',0,20,20],
-['Cycling',3,12,15],
-['Intro to Ashtanga Yoga',1,49,61],
-['Night Club Cardio',3,52,55],
-['Meditation',1,14,15],
-['Insanity',10,29,39]
-        ]);
 
-        var options = {
-          chart: {
-            title: 'Group Fitness Attendance for Monday',
-            subtitle: 'Feb 8 2016, Class name, Female Attendance, Male Attendance ,Total',
-			},
-          bars: 'horizontal' // Required for Material Bar Charts.
-        };
-
-        var chart = new google.charts.Bar(document.getElementById('barchart_material'));
-
-        chart.draw(data, options);
-      }
-    </script>
   </head>
   <body>
     <div id="barchart_material" style="width: 900px; height: 500px;"></div>
