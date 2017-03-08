@@ -48,7 +48,7 @@ aside img {margin-bottom:15px}
 .grid2 {width:16.66%}
 .grid3 {width:25%}
 .grid4 {width:33.33%}
-.grid6 {width:50%}
+.grid6 {width:75%}
 .grid8 {width:66.66%}
 .grid9 {width:75%}
 .grid12 {width:100%}
@@ -89,7 +89,7 @@ blockquote {padding:30px 15px; border-left:8px solid #e9e9e9; border-right:1px s
 blockquote p {font-size: 20px; font-family:"Milo", sans-serif; line-height:1.5em; padding:0; margin:0 0 15px 0}
 
 
-.leftnav {width: 15%; display:table-cell; padding:45px 15px; font-size:16px}
+.leftnav {width: 12.5%; display:table-cell; padding:45px 15px; font-size:16px}
 .leftnav h4, aside h4 {text-transform:uppercase; border-bottom:1px dotted rgba(0,0,0,.2); font-size:16px; font-weight:bold; letter-spacing: 0.125em; line-height:21px; margin:0 0 12px; padding:0 0 14px; color: #54585A}
 .leftnav h4 a {color: #54585A; text-decoration:none}
 .leftnav li a {display:block; line-height:21px; padding:7px 0; transition:.3s}
